@@ -1,13 +1,19 @@
 namespace AttendanceMonitoringSystem.Models
 {
     public class Student
-    {
-        public int StudentId { get; set; }
+{
+    public int StudentId { get; set; }
 
-        public int UserId { get; set; }
+    public string FirstName { get; set; }
 
-        public string StudentNumber { get; set; } = string.Empty;
+    public string LastName { get; set; }
 
-        public User User { get; set; } = null!;
-    }
+    public string Email { get; set; }
+
+    public string Course { get; set; }
+
+    public int YearOfStudy { get; set; }
+
+    public string Department { get; set; }
+}
 }
