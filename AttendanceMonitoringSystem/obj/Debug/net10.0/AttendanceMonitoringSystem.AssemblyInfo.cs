@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("AttendanceMonitoringSystem")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ccdbfc134a68538e3b39a7034a391a86cb30d2a1")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+4be77488bf6a7ebea87ea610970d423ce5e0da4c")]
 [assembly: System.Reflection.AssemblyProductAttribute("AttendanceMonitoringSystem")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AttendanceMonitoringSystem")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

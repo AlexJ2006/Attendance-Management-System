@@ -84,8 +84,6 @@
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/avrkjiuz7k-{0}-muycvpuwrr-muycvpuwrr.gz
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/odntharif7-{0}-87fc7y1x7t-87fc7y1x7t.gz
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/98m53wvv6w-{0}-mlv21k5csn-mlv21k5csn.gz
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/rxvsd9ne8m-{0}-m0o8czg2yj-m0o8czg2yj.gz
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/kghht5kd5q-{0}-m0o8czg2yj-m0o8czg2yj.gz
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/staticwebassets.build.json
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/staticwebassets.build.json.cache
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/staticwebassets.development.json
@@ -96,3 +94,6 @@
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.pdb
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.genruntimeconfig.cache
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/ref/AttendanceMonitoringSystem.dll
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/scopedcss/Views/Shared/_Layout.cshtml.rz.scp.css
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/rxvsd9ne8m-{0}-zu3ixbu8n5-zu3ixbu8n5.gz
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/kghht5kd5q-{0}-zu3ixbu8n5-zu3ixbu8n5.gz

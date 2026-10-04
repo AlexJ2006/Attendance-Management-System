@@ -1,0 +1,19 @@
+@model AttendanceMonitoringSystem.Models.Student
+
+@{
+    ViewData["Title"] = "Enrolment Details";
+}
+
+<h1>Enrolment Details</h1>
+
+@* <p class="alert alert-info">
+    TODO: Implement W2-UC01 using the enrolment fields selected
+    from the supplied domain model.
+</p> *@
+
+<h1>Student Details</h1>
+<p><b>Student Number:</b>  @Model.StudentId</p>
+<p><b>Student First Name:</b>: @Model.FirstName</p>
+<p><b>Student LastName</b> @Model.LastName</p>
+
+<a asp-action="Index">Return to students</a>

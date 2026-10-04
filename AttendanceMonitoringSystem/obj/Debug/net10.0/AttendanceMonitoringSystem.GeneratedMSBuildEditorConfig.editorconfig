@@ -51,6 +51,26 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXR0ZW5kYW5jZS9pbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Home/index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9pbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Home/Privacy.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9Qcml2YWN5LmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Shared/Error.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Shared/_ValidationScriptsPartial.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Students/EnrolmentDetails.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3R1ZGVudHMvRW5yb2xtZW50RGV0YWlscy5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Students/index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3R1ZGVudHMvaW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
@@ -58,3 +78,7 @@ build_metadata.AdditionalFiles.CssScope =
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Pages/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2hhcmVkL19MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-7pu0vwscgr
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = b-k0xmk3iyzp
