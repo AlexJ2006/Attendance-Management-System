@@ -1,0 +1,36 @@
+@page
+@model AttendanceMonitoringSystem.StudentsModel
+@{
+    ViewData["Title"] = "Students";
+}
+
+<div class="container">
+
+    <h1>Students</h1>
+
+    <p>List of all students on your course.</p>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Student Number</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Course</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            @foreach (var student in Model.Students)
+            {
+                <tr>
+                    <td>@student.StudentId</td>
+                    <td>@student.Name</td>
+                    <td>@student.Email</td>
+                    <td>@student.Course</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+</div>

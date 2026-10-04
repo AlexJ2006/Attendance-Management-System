@@ -48,51 +48,105 @@ button.accept-policy[b-7pu0vwscgr] {
   line-height: 60px;
 }
 /* /Views/Shared/_Layout.cshtml.rz.scp.css */
-/* Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
-for details on configuring this project to bundle and minify static web assets. */
-
-a.navbar-brand[b-k0xmk3iyzp] {
-  white-space: normal;
-  text-align: center;
-  word-break: break-all;
+.login-container[b-k0xmk3iyzp] {
+min-height: 80vh;
+display: flex;
+justify-content: center;
+align-items: center;
 }
 
-a[b-k0xmk3iyzp] {
-  color: #0077cc;
+.login-box[b-k0xmk3iyzp] {
+width: 100%;
+max-width: 450px;
+padding: 40px;
+background: white;
+border-radius: 12px;
+box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+text-align: center;
 }
 
-.btn-primary[b-k0xmk3iyzp] {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.login-box h1[b-k0xmk3iyzp] {
+margin-bottom: 10px;
+font-size: 28px;
 }
 
-.nav-pills .nav-link.active[b-k0xmk3iyzp], .nav-pills .show > .nav-link[b-k0xmk3iyzp] {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
+.subtitle[b-k0xmk3iyzp] {
+color: #666;
+margin-bottom: 30px;
 }
 
-.border-top[b-k0xmk3iyzp] {
-  border-top: 1px solid #e5e5e5;
-}
-.border-bottom[b-k0xmk3iyzp] {
-  border-bottom: 1px solid #e5e5e5;
+.form-group[b-k0xmk3iyzp] {
+text-align: left;
+margin-bottom: 20px;
 }
 
-.box-shadow[b-k0xmk3iyzp] {
-  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+.form-group label[b-k0xmk3iyzp] {
+display: block;
+margin-bottom: 6px;
+font-weight: bold;
 }
 
-button.accept-policy[b-k0xmk3iyzp] {
-  font-size: 1rem;
-  line-height: inherit;
+.form-control[b-k0xmk3iyzp] {
+width: 100%;
+padding: 12px;
+border: 1px solid #ccc;
+border-radius: 6px;
+box-sizing: border-box;
+font-size: 16px;
 }
 
-.footer[b-k0xmk3iyzp] {
-  position: absolute;
-  bottom: 0;
-  width: 100%;
-  white-space: nowrap;
-  line-height: 60px;
+.btn-signin[b-k0xmk3iyzp] {
+width: 100%;
+padding: 12px;
+border: none;
+border-radius: 6px;
+background-color: #0d6efd;
+color: white;
+font-size: 16px;
+cursor: pointer;
+}
+
+.btn-signin:hover[b-k0xmk3iyzp] {
+background-color: #0b5ed7;
+}
+
+.divider[b-k0xmk3iyzp] {
+margin: 30px 0;
+border-bottom: 1px solid #ddd;
+line-height: 0;
+}
+
+.divider span[b-k0xmk3iyzp] {
+background: white;
+padding: 0 10px;
+color: #777;
+}
+
+.register-box[b-k0xmk3iyzp] {
+padding-top: 10px;
+}
+
+.register-box h2[b-k0xmk3iyzp] {
+font-size: 20px;
+margin-bottom: 8px;
+}
+
+.register-box p[b-k0xmk3iyzp] {
+color: #666;
+font-size: 14px;
+}
+
+.btn-register[b-k0xmk3iyzp] {
+display: inline-block;
+margin-top: 10px;
+padding: 10px 20px;
+border: 2px solid #0d6efd;
+border-radius: 6px;
+color: #0d6efd;
+text-decoration: none;
+}
+
+.btn-register:hover[b-k0xmk3iyzp] {
+background-color: #0d6efd;
+color: white;
 }

@@ -22,7 +22,6 @@
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/scopedcss/Pages/Shared/_Layout.cshtml.rz.scp.css
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/scopedcss/bundle/AttendanceMonitoringSystem.styles.css
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/scopedcss/projectbundle/AttendanceMonitoringSystem.bundle.scp.css
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/sa60sta8rt-{0}-b9sayid5wm-b9sayid5wm.gz
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/4oh7xrj5j9-{0}-61n19gt1b8-61n19gt1b8.gz
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/g7n3cvk73n-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/22vn6bf8l1-{0}-bqjiyaj88i-bqjiyaj88i.gz
@@ -95,5 +94,6 @@
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.genruntimeconfig.cache
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/ref/AttendanceMonitoringSystem.dll
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/scopedcss/Views/Shared/_Layout.cshtml.rz.scp.css
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/rxvsd9ne8m-{0}-zu3ixbu8n5-zu3ixbu8n5.gz
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/kghht5kd5q-{0}-zu3ixbu8n5-zu3ixbu8n5.gz
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/rxvsd9ne8m-{0}-xy2kl3usu3-xy2kl3usu3.gz
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/kghht5kd5q-{0}-xy2kl3usu3-xy2kl3usu3.gz
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/sa60sta8rt-{0}-wglfdz8t0p-wglfdz8t0p.gz
