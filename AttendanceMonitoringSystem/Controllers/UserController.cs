@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AttendanceMonitoringSystem.Controllers
@@ -7,6 +8,13 @@ namespace AttendanceMonitoringSystem.Controllers
         public IActionResult Index()
         {
             return View();
+        }
+
+        public async Task<IActionResult> Logout()
+        {
+            await HttpContext.SignOutAsync("MyCookieAuth");
+
+            return RedirectToPage("/Index");
         }
     }
 }

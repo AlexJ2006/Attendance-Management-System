@@ -4,12 +4,14 @@ namespace AttendanceMonitoringSystem.Models
     {
         public int ModuleId { get; set; }
 
-        public int CourseId { get; set; }
+        public string ModuleCode { get; set; }
 
-        public string ModuleName { get; set; } = string.Empty;
+        public string ModuleName { get; set; }
 
-        public Course Course { get; set; } = null!;
+        public string Course { get; set; }
 
-        public ICollection<ModuleOccurrence> ModuleOccurrences { get; set; } = new List<ModuleOccurrence>();
+        public int YearOfStudy { get; set; }
+
+        public string ModuleLeader { get; set; }
     }
 }
