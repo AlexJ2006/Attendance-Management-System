@@ -1,55 +1,58 @@
-@model IEnumerable<AttendanceMonitoringSystem.Models.Student>
-
 @{
+    Layout = "_Layout";
     ViewData["Title"] = "Students";
 }
 
-<h1>Students</h1>
+@model List<AttendanceMonitoringSystem.Models.Student>
 
-<table class="table">
-    <thead>
-        <tr>
-            <th>Student number</th>
-            <th>Name</th>
-            <th>Current status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var student in Model)
-        {
-            <tr>
-                <td>@student.StudentId</td>
-                <td>@student.FirstName</td>
-                <td>@student.LastName</td>
-                <td>@student.Course</td>
-                <td>
-                    <a asp-action="EnrolmentDetails"
-                       asp-route-studentNumber="@student.StudentId">
-                        Enrolment
-                    </a>
-                    |
-                    <a asp-action="ThesisDetails"
-                       asp-route-studentNumber="@student.StudentId">
-                        Thesis
-                    </a>
-                    |
-                    <a asp-action="EditStatus"
-                       asp-route-studentNumber="@student.StudentId">
-                        Edit status
-                    </a>
-                    |
-                    <a asp-action="EditExpectedSubmissionDate"
-                       asp-route-studentNumber="@student.StudentId">
-                        Edit expected date
-                    </a>
-                    |
-                    <a asp-action="RecordSubmission"
-                       asp-route-studentNumber="@student.StudentId">
-                        Record submission
-                    </a>
-                </td>
-            </tr>
-        }
-    </tbody>
-</table>
+
+<div class="students-page">
+
+    <div class="students-header">
+        <div>
+            <h1>Students</h1>
+            <p>List of all students on your course.</p>
+        </div>
+
+        <a href="#" class="add-student-button">+ Add Student</a>
+    </div>
+
+    <div class="students-card">
+
+        <div class="students-card-header">
+            <h2>Student List</h2>
+            <span>@Model.Count students</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="students-table">
+                <thead>
+                    <tr>
+                        <th>Student Number</th>
+                        <th>Name</th>
+                        <th>Email</th>
+                        <th>Course</th>
+                        <th>Year</th>
+                        <th>Department</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @foreach (var student in Model)
+                    {
+                        <tr>
+                            <td>@student.StudentId</td>
+                            <td>@student.FirstName @student.LastName</td>
+                            <td>@student.Email</td>
+                            <td>@student.Course</td>
+                            <td>@student.YearOfStudy</td>
+                            <td>@student.Department</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+    </div>
+
+</div>

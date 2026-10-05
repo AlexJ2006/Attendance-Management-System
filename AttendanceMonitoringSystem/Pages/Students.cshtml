@@ -1,5 +1,5 @@
-@page
-@model AttendanceMonitoringSystem.StudentsModel
+@model List<AttendanceMonitoringSystem.Models.Student>
+
 @{
     ViewData["Title"] = "Students";
 }
@@ -17,17 +17,21 @@
                 <th>Name</th>
                 <th>Email</th>
                 <th>Course</th>
+                <th>Year</th>
+                <th>Department</th>
             </tr>
         </thead>
 
         <tbody>
-            @foreach (var student in Model.Students)
+            @foreach (var student in Model)
             {
                 <tr>
                     <td>@student.StudentId</td>
-                    <td>@student.Name</td>
+                    <td>@student.FirstName @student.LastName</td>
                     <td>@student.Email</td>
                     <td>@student.Course</td>
+                    <td>@student.YearOfStudy</td>
+                    <td>@student.Department</td>
                 </tr>
             }
         </tbody>

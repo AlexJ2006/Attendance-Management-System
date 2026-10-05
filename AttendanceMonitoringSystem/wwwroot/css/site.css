@@ -149,3 +149,170 @@ font-weight: 500;
 background-color: #0d6efd;
 color: #ffffff;
 }
+/* ================================
+   STUDENTS PAGE
+   ================================ */
+
+.students-page {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 40px 20px;
+}
+
+/* Page heading */
+
+.students-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+}
+
+.students-header h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: #1f2937;
+}
+
+.students-header p {
+    margin: 8px 0 0;
+    color: #6b7280;
+    font-size: 15px;
+}
+
+/* Add student button */
+
+.add-student-button {
+    display: inline-block;
+    padding: 11px 20px;
+    background: #2563eb;
+    color: white !important;
+    text-decoration: none;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.add-student-button:hover {
+    background: #1d4ed8;
+    color: white !important;
+}
+
+/* Main student card */
+
+.students-card {
+    background: white;
+    border: 1px solid #e5e7eb;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.06);
+}
+
+/* Card heading */
+
+.students-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px 24px;
+    background: white;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.students-card-header h2 {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.students-card-header span {
+    padding: 5px 10px;
+    background: #eff6ff;
+    color: #2563eb;
+    border-radius: 20px;
+    font-size: 13px;
+    font-weight: 600;
+}
+
+/* Table */
+
+.students-table {
+    width: 100%;
+    margin: 0;
+    border-collapse: collapse;
+}
+
+/* Table headings */
+
+.students-table thead th {
+    padding: 15px 20px;
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 12px;
+    font-weight: 700;
+    text-align: left;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+/* Table cells */
+
+.students-table tbody td {
+    padding: 17px 20px;
+    color: #374151;
+    font-size: 14px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+/* Student number */
+
+.students-table tbody td:first-child {
+    font-weight: 600;
+    color: #2563eb;
+}
+
+/* Student name */
+
+.students-table tbody td:nth-child(2) {
+    font-weight: 600;
+    color: #1f2937;
+}
+
+/* Hover effect */
+
+.students-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* Remove border from final row */
+
+.students-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+
+    .students-page {
+        padding: 25px 15px;
+    }
+
+    .students-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 20px;
+    }
+
+    .students-card {
+        overflow-x: auto;
+    }
+
+    .students-table {
+        min-width: 800px;
+    }
+}
