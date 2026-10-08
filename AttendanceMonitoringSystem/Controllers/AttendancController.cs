@@ -40,7 +40,7 @@ namespace AttendanceMonitoringSystem.Controllers
 
             _attendanceService.RecordAttendance(attendance);
 
-            return View();
+            return RedirectToAction(nameof(Index));
         }
     }
 }
