@@ -1,7 +1,14 @@
+using AttendanceMonitoringSystem.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services for MVC controllers and Razor Pages
+// Add services for MVC controllers and views
 builder.Services.AddControllersWithViews();
+builder.Services.AddScoped<StudentService>();
+builder.Services.AddScoped<ModuleService>();
+builder.Services.AddScoped<AttendanceService>();
+
+// Add services for Razor Pages
 builder.Services.AddRazorPages();
 
 // Add cookie authentication
@@ -25,7 +32,6 @@ if (!app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 app.UseStaticFiles();
-
 app.UseRouting();
 
 // Authentication must come before Authorization

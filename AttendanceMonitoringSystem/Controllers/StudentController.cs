@@ -1,51 +1,34 @@
-using AttendanceMonitoringSystem.Models;
+using AttendanceMonitoringSystem.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AttendanceMonitoringSystem.Controllers
 {
     public class StudentsController : Controller
     {
-        private static List<Student> Students = new()
-        {
-            new Student
-            {
-                StudentId = 1234,
-                FirstName = "Geoff",
-                LastName = "Briggs",
-                Email = "G.Briggs@emailProvider.com",
-                Course = "Software Engineering",
-                YearOfStudy = 3,
-                Department = "Engineering"
-            },
+        private readonly StudentService _studentService;
 
-            new Student
-            {
-                StudentId = 5678,
-                FirstName = "Michael",
-                LastName = "Smithson",
-                Email = "M.Smithson@EmailProvider.com",
-                Course = "Mathematics",
-                YearOfStudy = 2,
-                Department = "Mathematics"
-            }
-        };
+        public StudentsController(StudentService studentService)
+        {
+            _studentService = studentService;
+        }
 
         public IActionResult Index()
         {
-            return View(Students);
+            var students = _studentService.GetAllStudents();
+
+            return View(students);
         }
 
-        public IActionResult EnrolmentDetails(int StudentId)
+        public IActionResult EnrolmentDetails(int studentId)
         {
-            foreach (Student s in Students)
+            var student = _studentService.GetStudentById(studentId);
+
+            if (student == null)
             {
-                if (s.StudentId == StudentId)
-                {
-                    return View(s);
-                }
+                return NotFound();
             }
 
-            return NotFound();
+            return View(student);
         }
     }
 }
