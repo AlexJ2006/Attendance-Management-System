@@ -1,3 +1,4 @@
+
 using AttendanceMonitoringSystem.Models;
 
 namespace AttendanceMonitoringSystem.Services
@@ -11,9 +12,8 @@ namespace AttendanceMonitoringSystem.Services
                 ModuleId = 1,
                 ModuleCode = "SE301",
                 ModuleName = "Software Engineering",
-                Course = "Software Engineering",
-                YearOfStudy = 3,
-                ModuleLeader = "Geoff Briggs"
+                CourseId = 1,
+                YearOfStudy = 3
             },
 
             new Module
@@ -21,9 +21,8 @@ namespace AttendanceMonitoringSystem.Services
                 ModuleId = 2,
                 ModuleCode = "CS201",
                 ModuleName = "Database Systems",
-                Course = "Software Engineering",
-                YearOfStudy = 2,
-                ModuleLeader = "Michael Smithson"
+                CourseId = 1,
+                YearOfStudy = 2
             },
 
             new Module
@@ -31,15 +30,14 @@ namespace AttendanceMonitoringSystem.Services
                 ModuleId = 3,
                 ModuleCode = "CS302",
                 ModuleName = "Web Application Development",
-                Course = "Software Engineering",
-                YearOfStudy = 3,
-                ModuleLeader = "Geoff Briggs"
+                CourseId = 1,
+                YearOfStudy = 3
             }
         };
 
         public List<Module> GetAllModules()
         {
-            return Modules;
+            return Modules.ToList();
         }
 
         public Module? GetModuleById(int moduleId)

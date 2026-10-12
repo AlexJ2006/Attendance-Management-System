@@ -1,13 +1,15 @@
-namespace AttendanceMonitoringSystem.Models
+
+namespace AttendanceMonitoringSystem.Models;
+
+public class UserRole
 {
-    public class UserRole
-    {
-        public int UserId { get; set; }
+    public int UserId { get; set; }
 
-        public int RoleId { get; set; }
+    public int RoleId { get; set; }
 
-        public User User { get; set; } = null!;
+    public DateTime AssignedAt { get; set; } = DateTime.UtcNow;
 
-        public Role Role { get; set; } = null!;
-    }
+    public User User { get; set; } = null!;
+
+    public Role Role { get; set; } = null!;
 }

@@ -1,11 +1,13 @@
-namespace AttendanceMonitoringSystem.Models
+
+namespace AttendanceMonitoringSystem.Models;
+
+public class Course
 {
-    public class Course
-    {
-        public int CourseId { get; set; }
+    public int CourseId { get; set; }
 
-        public string CourseName { get; set; } = string.Empty;
+    public string CourseName { get; set; } = string.Empty;
 
-        public ICollection<Module> Modules { get; set; } = new List<Module>();
-    }
+    public string CourseCode { get; set; } = string.Empty;
+
+    public ICollection<Module> Modules { get; set; } = new List<Module>();
 }

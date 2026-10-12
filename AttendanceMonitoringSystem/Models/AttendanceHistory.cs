@@ -1,23 +1,23 @@
-namespace AttendanceMonitoringSystem.Models
+
+namespace AttendanceMonitoringSystem.Models;
+
+public class AttendanceHistory
 {
-    public class AttendanceHistory
-    {
-        public int AttendanceHistoryId { get; set; }
+    public int AttendanceHistoryId { get; set; }
 
-        public int AttendanceId { get; set; }
+    public int AttendanceId { get; set; }
 
-        public string PreviousStatus { get; set; } = string.Empty;
+    public AttendanceStatus PreviousStatus { get; set; }
 
-        public string NewStatus { get; set; } = string.Empty;
+    public AttendanceStatus NewStatus { get; set; }
 
-        public DateTime ChangedAt { get; set; }
+    public DateTime ChangedAt { get; set; }
 
-        public int ChangedByUserId { get; set; }
+    public int ChangedByUserId { get; set; }
 
-        public string Reason { get; set; } = string.Empty;
+    public string Reason { get; set; } = string.Empty;
 
-        public Attendance Attendance { get; set; } = null!;
+    public Attendance Attendance { get; set; } = null!;
 
-        public User ChangedByUser { get; set; } = null!;
-    }
+    public User ChangedByUser { get; set; } = null!;
 }

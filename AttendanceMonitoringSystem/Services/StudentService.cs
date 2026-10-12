@@ -1,3 +1,4 @@
+
 using AttendanceMonitoringSystem.Models;
 
 namespace AttendanceMonitoringSystem.Services
@@ -12,7 +13,7 @@ namespace AttendanceMonitoringSystem.Services
                 FirstName = "Geoff",
                 LastName = "Briggs",
                 Email = "G.Briggs@emailProvider.com",
-                Course = "Software Engineering",
+                CourseId = 1,
                 YearOfStudy = 3,
                 Department = "Engineering"
             },
@@ -23,7 +24,7 @@ namespace AttendanceMonitoringSystem.Services
                 FirstName = "Michael",
                 LastName = "Smithson",
                 Email = "M.Smithson@EmailProvider.com",
-                Course = "Mathematics",
+                CourseId = 2,
                 YearOfStudy = 2,
                 Department = "Mathematics"
             }
@@ -31,12 +32,13 @@ namespace AttendanceMonitoringSystem.Services
 
         public List<Student> GetAllStudents()
         {
-            return Students;
+            return Students.ToList();
         }
 
         public Student? GetStudentById(int studentId)
         {
-            return Students.FirstOrDefault(s => s.StudentId == studentId);
+            return Students.FirstOrDefault(
+                s => s.StudentId == studentId);
         }
     }
 }

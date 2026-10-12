@@ -1,3 +1,4 @@
+
 using AttendanceMonitoringSystem.Models;
 using AttendanceMonitoringSystem.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,6 @@ namespace AttendanceMonitoringSystem.Controllers
         public IActionResult Index()
         {
             var attendance = _attendanceService.GetAllAttendance();
-
             return View(attendance);
         }
 
@@ -26,19 +26,38 @@ namespace AttendanceMonitoringSystem.Controllers
         }
 
         [HttpPost]
-        public IActionResult Register(int studentId, int sessionId, string status)
+        public IActionResult Register(
+            int studentId,
+            int sessionId,
+            AttendanceStatus status)
         {
+            if (!Enum.IsDefined(typeof(AttendanceStatus), status))
+            {
+                ModelState.AddModelError(
+                    nameof(status), "Please select a valid attendance status.");
+
+                return View();
+            }
+
             var attendance = new Attendance
             {
-                AttendanceId = _attendanceService.GetAllAttendance().Count + 1,
                 StudentId = studentId,
                 SessionId = sessionId,
                 Status = status,
-                RecordedAt = DateTime.Now,
+                RecordedAt = DateTime.UtcNow,
                 RecordedByUserId = 1
             };
 
-            _attendanceService.RecordAttendance(attendance);
+            bool recorded = _attendanceService.RecordAttendance(attendance);
+
+            if (!recorded)
+            {
+                ModelState.AddModelError(
+                    string.Empty,
+                    "Attendance could not be recorded. Check the student, session and whether attendance already exists.");
+
+                return View();
+            }
 
             return RedirectToAction(nameof(Index));
         }
