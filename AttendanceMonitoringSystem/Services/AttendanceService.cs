@@ -1,25 +1,36 @@
 
+using AttendanceMonitoringSystem.Data;
 using AttendanceMonitoringSystem.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AttendanceMonitoringSystem.Services
 {
     public class AttendanceService
     {
-        private static readonly List<Attendance> AttendanceRecords = new();
-        private static readonly List<AttendanceHistory> AttendanceHistoryRecords = new();
+        private readonly ApplicationDbContext _context;
 
-        private static int _nextAttendanceId = 1;
-        private static int _nextHistoryId = 1;
+        public AttendanceService(ApplicationDbContext context)
+        {
+            _context = context;
+        }
 
         public List<Attendance> GetAllAttendance()
         {
-            return AttendanceRecords.ToList();
+            return _context.Attendances
+                .AsNoTracking()
+                .Include(a => a.Student)
+                .Include(a => a.Session)
+                .OrderBy(a => a.SessionId)
+                .ThenBy(a => a.StudentId)
+                .ToList();
         }
 
         public Attendance? GetAttendanceById(int attendanceId)
         {
-            return AttendanceRecords.FirstOrDefault(
-                a => a.AttendanceId == attendanceId);
+            return _context.Attendances
+                .Include(a => a.Student)
+                .Include(a => a.Session)
+                .FirstOrDefault(a => a.AttendanceId == attendanceId);
         }
 
         public bool RecordAttendance(Attendance attendance)
@@ -31,8 +42,12 @@ namespace AttendanceMonitoringSystem.Services
                 return false;
             }
 
-            // Prevent duplicate attendance records for the same student and session.
-            bool alreadyExists = AttendanceRecords.Any(a =>
+            if (!Enum.IsDefined(typeof(AttendanceStatus), attendance.Status))
+            {
+                return false;
+            }
+
+            bool alreadyExists = _context.Attendances.Any(a =>
                 a.StudentId == attendance.StudentId &&
                 a.SessionId == attendance.SessionId);
 
@@ -41,21 +56,19 @@ namespace AttendanceMonitoringSystem.Services
                 return false;
             }
 
-            if (attendance.AttendanceId <= 0)
-            {
-                attendance.AttendanceId = _nextAttendanceId++;
-            }
-            else
-            {
-                if (AttendanceRecords.Any(a =>
-                    a.AttendanceId == attendance.AttendanceId))
-                {
-                    return false;
-                }
+            // Confirm the referenced records exist.
+            bool studentExists = _context.Students
+                .Any(s => s.StudentId == attendance.StudentId);
 
-                _nextAttendanceId = Math.Max(
-                    _nextAttendanceId,
-                    attendance.AttendanceId + 1);
+            bool sessionExists = _context.Sessions
+                .Any(s => s.SessionId == attendance.SessionId);
+
+            bool userExists = _context.Users
+                .Any(u => u.UserId == attendance.RecordedByUserId);
+
+            if (!studentExists || !sessionExists || !userExists)
+            {
+                return false;
             }
 
             if (attendance.RecordedAt == default)
@@ -63,8 +76,22 @@ namespace AttendanceMonitoringSystem.Services
                 attendance.RecordedAt = DateTime.UtcNow;
             }
 
-            AttendanceRecords.Add(attendance);
-            return true;
+            // Let the database generate the primary key.
+            attendance.AttendanceId = 0;
+
+            _context.Attendances.Add(attendance);
+
+            try
+            {
+                _context.SaveChanges();
+                return true;
+            }
+            catch (DbUpdateException)
+            {
+                // Also handle a duplicate caused by a concurrent request.
+                _context.Entry(attendance).State = EntityState.Detached;
+                return false;
+            }
         }
 
         public bool CorrectAttendance(
@@ -73,31 +100,33 @@ namespace AttendanceMonitoringSystem.Services
             int changedByUserId,
             string reason)
         {
-            var attendance = GetAttendanceById(attendanceId);
-
-            if (attendance == null)
+            if (string.IsNullOrWhiteSpace(reason) ||
+                changedByUserId <= 0 ||
+                !Enum.IsDefined(typeof(AttendanceStatus), newStatus))
             {
                 return false;
             }
 
-            if (string.IsNullOrWhiteSpace(reason) || changedByUserId <= 0)
+            using var transaction = _context.Database.BeginTransaction();
+
+            var attendance = _context.Attendances
+                .FirstOrDefault(a => a.AttendanceId == attendanceId);
+
+            if (attendance == null || attendance.Status == newStatus)
             {
                 return false;
             }
 
-            if (!Enum.IsDefined(typeof(AttendanceStatus), newStatus))
-            {
-                return false;
-            }
+            bool userExists = _context.Users
+                .Any(u => u.UserId == changedByUserId);
 
-            if (attendance.Status == newStatus)
+            if (!userExists)
             {
                 return false;
             }
 
             var history = new AttendanceHistory
             {
-                AttendanceHistoryId = _nextHistoryId++,
                 AttendanceId = attendance.AttendanceId,
                 PreviousStatus = attendance.Status,
                 NewStatus = newStatus,
@@ -106,18 +135,22 @@ namespace AttendanceMonitoringSystem.Services
                 Reason = reason.Trim()
             };
 
-            // Record the change before updating the current status.
-            AttendanceHistoryRecords.Add(history);
-
+            // Save the audit record and status change together.
+            _context.AttendanceHistories.Add(history);
             attendance.Status = newStatus;
+
+            _context.SaveChanges();
+            transaction.Commit();
 
             return true;
         }
 
         public List<AttendanceHistory> GetAttendanceHistory(int attendanceId)
         {
-            return AttendanceHistoryRecords
+            return _context.AttendanceHistories
+                .AsNoTracking()
                 .Where(h => h.AttendanceId == attendanceId)
+                .Include(h => h.ChangedByUser)
                 .OrderBy(h => h.ChangedAt)
                 .ToList();
         }

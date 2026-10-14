@@ -1,17 +1,28 @@
+
+using AttendanceMonitoringSystem.Data;
 using AttendanceMonitoringSystem.Services;
+using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services for MVC controllers and views
+// Register Entity Framework Core with SQLite
+builder.Services.AddDbContext<ApplicationDbContext>(options =>
+    options.UseSqlite(
+        builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? "Data Source=attendance.db"));
+
+// Register MVC controllers and views
 builder.Services.AddControllersWithViews();
+
+// Register application services
 builder.Services.AddScoped<StudentService>();
 builder.Services.AddScoped<ModuleService>();
 builder.Services.AddScoped<AttendanceService>();
 
-// Add services for Razor Pages
+// Register Razor Pages
 builder.Services.AddRazorPages();
 
-// Add cookie authentication
+// Configure cookie authentication
 builder.Services.AddAuthentication("MyCookieAuth")
     .AddCookie("MyCookieAuth", options =>
     {
@@ -19,6 +30,7 @@ builder.Services.AddAuthentication("MyCookieAuth")
         options.AccessDeniedPath = "/Index";
     });
 
+// Register authorization
 builder.Services.AddAuthorization();
 
 var app = builder.Build();
@@ -34,16 +46,16 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 app.UseRouting();
 
-// Authentication must come before Authorization
+// Authentication must run before authorization
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Enable MVC controllers
+// Configure MVC routing
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Enable Razor Pages
+// Map Razor Pages
 app.MapRazorPages();
 
 app.Run();

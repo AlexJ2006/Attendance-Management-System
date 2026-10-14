@@ -1,48 +1,34 @@
 
+using AttendanceMonitoringSystem.Data;
 using AttendanceMonitoringSystem.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace AttendanceMonitoringSystem.Services
 {
     public class ModuleService
     {
-        private static readonly List<Module> Modules = new()
+        private readonly ApplicationDbContext _context;
+
+        public ModuleService(ApplicationDbContext context)
         {
-            new Module
-            {
-                ModuleId = 1,
-                ModuleCode = "SE301",
-                ModuleName = "Software Engineering",
-                CourseId = 1,
-                YearOfStudy = 3
-            },
-
-            new Module
-            {
-                ModuleId = 2,
-                ModuleCode = "CS201",
-                ModuleName = "Database Systems",
-                CourseId = 1,
-                YearOfStudy = 2
-            },
-
-            new Module
-            {
-                ModuleId = 3,
-                ModuleCode = "CS302",
-                ModuleName = "Web Application Development",
-                CourseId = 1,
-                YearOfStudy = 3
-            }
-        };
+            _context = context;
+        }
 
         public List<Module> GetAllModules()
         {
-            return Modules.ToList();
+            return _context.Modules
+                .AsNoTracking()
+                .Include(m => m.Course)
+                .OrderBy(m => m.ModuleCode)
+                .ToList();
         }
 
         public Module? GetModuleById(int moduleId)
         {
-            return Modules.FirstOrDefault(m => m.ModuleId == moduleId);
+            return _context.Modules
+                .AsNoTracking()
+                .Include(m => m.Course)
+                .FirstOrDefault(m => m.ModuleId == moduleId);
         }
     }
 }
