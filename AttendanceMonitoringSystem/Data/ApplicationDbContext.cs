@@ -1,11 +1,12 @@
+
 using AttendanceMonitoringSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace AttendanceMonitoringSystem.Data;
-
 public class ApplicationDbContext : DbContext
 {
-    public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
+    public ApplicationDbContext(
+        DbContextOptions<ApplicationDbContext> options)
         : base(options)
     {
     }
@@ -15,123 +16,234 @@ public class ApplicationDbContext : DbContext
     public DbSet<UserRole> UserRoles => Set<UserRole>();
     public DbSet<Course> Courses => Set<Course>();
     public DbSet<Module> Modules => Set<Module>();
-    public DbSet<ModuleOccurrence> ModuleOccurrences => Set<ModuleOccurrence>();
+    public DbSet<ModuleOccurrence> ModuleOccurrences
+        => Set<ModuleOccurrence>();
     public DbSet<Student> Students => Set<Student>();
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<Attendance> Attendances => Set<Attendance>();
-    public DbSet<AttendanceHistory> AttendanceHistories => Set<AttendanceHistory>();
-    public DbSet<AdviserAssignment> AdviserAssignments => Set<AdviserAssignment>();
+    public DbSet<AttendanceHistory> AttendanceHistories
+        => Set<AttendanceHistory>();
+    public DbSet<AdviserAssignment> AdviserAssignments
+        => Set<AdviserAssignment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
-        // A user can have each role only once.
-        modelBuilder.Entity<UserRole>()
-            .HasKey(ur => new { ur.UserId, ur.RoleId });
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.ToTable("User");
+            entity.HasKey(u => u.UserId);
 
-        modelBuilder.Entity<UserRole>()
-            .HasOne(ur => ur.User)
-            .WithMany(u => u.UserRoles)
-            .HasForeignKey(ur => ur.UserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(u => u.UserId).HasColumnName("UserId");
+            entity.Property(u => u.Name).HasColumnName("Name");
+            entity.Property(u => u.Email).HasColumnName("Email");
+            entity.Property(u => u.IsActive).HasColumnName("is_active");
+        });
 
-        modelBuilder.Entity<UserRole>()
-            .HasOne(ur => ur.Role)
-            .WithMany(r => r.UserRoles)
-            .HasForeignKey(ur => ur.RoleId)
-            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Role>(entity =>
+        {
+            entity.ToTable("Role");
+            entity.HasKey(r => r.RoleId);
 
-        // Course -> Modules -> ModuleOccurrences -> Sessions.
-        modelBuilder.Entity<Module>()
-            .HasOne(m => m.Course)
-            .WithMany(c => c.Modules)
-            .HasForeignKey(m => m.CourseId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(r => r.RoleId).HasColumnName("RoleId");
+            entity.Property(r => r.RoleName).HasColumnName("name");
+        });
 
-        modelBuilder.Entity<ModuleOccurrence>()
-            .HasOne(mo => mo.Module)
-            .WithMany(m => m.ModuleOccurrences)
-            .HasForeignKey(mo => mo.ModuleId)
-            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<UserRole>(entity =>
+        {
+            entity.ToTable("UserRole");
+            entity.HasKey(ur => new { ur.UserId, ur.RoleId });
 
-        modelBuilder.Entity<Session>()
-            .HasOne(s => s.ModuleOccurrence)
-            .WithMany(mo => mo.Sessions)
-            .HasForeignKey(s => s.ModuleOccurrenceId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(ur => ur.UserId).HasColumnName("user_id");
+            entity.Property(ur => ur.RoleId).HasColumnName("role_id");
+            entity.Property(ur => ur.AssignedAt).HasColumnName("AssignedAt");
 
-        // Students belong to a course.
-        modelBuilder.Entity<Student>()
-            .HasOne(s => s.Course)
-            .WithMany()
-            .HasForeignKey(s => s.CourseId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(ur => ur.User)
+                .WithMany(u => u.UserRoles)
+                .HasForeignKey(ur => ur.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
 
-        // Each student can have at most one attendance record per session.
-        modelBuilder.Entity<Attendance>()
-            .HasIndex(a => new { a.StudentId, a.SessionId })
-            .IsUnique();
+            entity.HasOne(ur => ur.Role)
+                .WithMany(r => r.UserRoles)
+                .HasForeignKey(ur => ur.RoleId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
-        modelBuilder.Entity<Attendance>()
-            .HasOne(a => a.Student)
-            .WithMany(s => s.Attendances)
-            .HasForeignKey(a => a.StudentId)
-            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Course>(entity =>
+        {
+            entity.ToTable("Course");
+            entity.HasKey(c => c.CourseId);
 
-        modelBuilder.Entity<Attendance>()
-            .HasOne(a => a.Session)
-            .WithMany(s => s.Attendances)
-            .HasForeignKey(a => a.SessionId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(c => c.CourseId).HasColumnName("CourseId");
+            entity.Property(c => c.CourseName).HasColumnName("CourseName");
+            entity.Property(c => c.CourseCode).HasColumnName("CourseCode");
+        });
 
-        modelBuilder.Entity<Attendance>()
-            .HasOne(a => a.RecordedByUser)
-            .WithMany()
-            .HasForeignKey(a => a.RecordedByUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<Module>(entity =>
+        {
+            entity.ToTable("Module");
+            entity.HasKey(m => m.ModuleId);
 
-        // Preserve attendance history and identify who changed the record.
-        modelBuilder.Entity<AttendanceHistory>()
-            .HasOne(h => h.Attendance)
-            .WithMany()
-            .HasForeignKey(h => h.AttendanceId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(m => m.ModuleId).HasColumnName("ModuleId");
+            entity.Property(m => m.CourseId).HasColumnName("CourseId");
+            entity.Property(m => m.ModuleName).HasColumnName("ModuleName");
+            entity.Property(m => m.ModuleCode).HasColumnName("ModuleCode");
 
-        modelBuilder.Entity<AttendanceHistory>()
-            .HasOne(h => h.ChangedByUser)
-            .WithMany()
-            .HasForeignKey(h => h.ChangedByUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.HasOne(m => m.Course)
+                .WithMany(c => c.Modules)
+                .HasForeignKey(m => m.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
-        // An adviser assignment links a user to a student.
-        modelBuilder.Entity<AdviserAssignment>()
-            .HasOne(a => a.Adviser)
-            .WithMany()
-            .HasForeignKey(a => a.AdviserUserId)
-            .OnDelete(DeleteBehavior.Restrict);
+        modelBuilder.Entity<ModuleOccurrence>(entity =>
+        {
+            entity.ToTable("ModuleOccurrence");
+            entity.HasKey(mo => mo.ModuleOccurrenceId);
 
-        modelBuilder.Entity<AdviserAssignment>()
-            .HasOne(a => a.Student)
-            .WithMany()
-            .HasForeignKey(a => a.StudentId)
-            .OnDelete(DeleteBehavior.Restrict);
+            entity.Property(mo => mo.ModuleOccurrenceId)
+                .HasColumnName("OccurrenceId");
 
-        // Store enum values as integers.
-        modelBuilder.Entity<Attendance>()
-            .Property(a => a.Status)
-            .HasConversion<int>();
+            entity.Property(mo => mo.ModuleId).HasColumnName("ModuleId");
+            entity.Property(mo => mo.AcademicYear).HasColumnName("AcademicYear");
+            entity.Property(mo => mo.Semester).HasColumnName("Semester");
 
-        modelBuilder.Entity<AttendanceHistory>()
-            .Property(h => h.PreviousStatus)
-            .HasConversion<int>();
+            entity.HasOne(mo => mo.Module)
+                .WithMany(m => m.ModuleOccurrences)
+                .HasForeignKey(mo => mo.ModuleId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
 
-        modelBuilder.Entity<AttendanceHistory>()
-            .Property(h => h.NewStatus)
-            .HasConversion<int>();
+        modelBuilder.Entity<Student>(entity =>
+        {
+            entity.ToTable("Student");
+            entity.HasKey(s => s.StudentId);
 
-        modelBuilder.Entity<Session>()
-            .Property(s => s.Status)
-            .HasConversion<int>();
+            entity.Property(s => s.StudentId).HasColumnName("StudentId");
+            entity.Property(s => s.FirstName).HasColumnName("FirstName");
+            entity.Property(s => s.LastName).HasColumnName("LastName");
+            entity.Property(s => s.Email).HasColumnName("Email");
+            entity.Property(s => s.CourseId).HasColumnName("CourseId");
+            entity.Property(s => s.YearOfStudy).HasColumnName("YearOfStudy");
+            entity.Property(s => s.Department).HasColumnName("Department");
+
+            // Present in the database; add the matching property/model
+            // before querying or saving this relationship.
+            entity.Property<int>("CohortId").HasColumnName("CohortId");
+
+            entity.HasOne(s => s.Course)
+                .WithMany()
+                .HasForeignKey(s => s.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(s => s.CourseId);
+        });
+
+        modelBuilder.Entity<Session>(entity =>
+        {
+            entity.ToTable("TeachingSession");
+            entity.HasKey(s => s.SessionId);
+
+            entity.Property(s => s.SessionId).HasColumnName("SessionId");
+            entity.Property(s => s.ModuleOccurrenceId)
+                .HasColumnName("ModuleOccurrenceId");
+            entity.Property(s => s.StartTime).HasColumnName("StartTime");
+            entity.Property(s => s.EndTime).HasColumnName("EndTime");
+            entity.Property(s => s.SessionType).HasColumnName("SessionType");
+            entity.Property(s => s.Status)
+                .HasColumnName("Status")
+                .HasConversion<string>();
+
+            entity.Ignore(s => s.SessionDate);
+
+            entity.HasOne(s => s.ModuleOccurrence)
+                .WithMany(mo => mo.Sessions)
+                .HasForeignKey(s => s.ModuleOccurrenceId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<Attendance>(entity =>
+        {
+            entity.ToTable("AttendanceRecord");
+            entity.HasKey(a => a.AttendanceId);
+
+            entity.Property(a => a.AttendanceId).HasColumnName("AttendanceId");
+            entity.Property(a => a.StudentId).HasColumnName("StudentId");
+            entity.Property(a => a.SessionId).HasColumnName("SessionId");
+            entity.Property(a => a.Status)
+                .HasColumnName("Status")
+                .HasConversion<string>();
+            entity.Property(a => a.RecordedAt).HasColumnName("RecordedAt");
+            entity.Property(a => a.RecordedByUserId)
+                .HasColumnName("RecordedByUserId");
+
+            entity.HasIndex(a => new { a.StudentId, a.SessionId })
+                .IsUnique();
+
+            entity.HasOne(a => a.Student)
+                .WithMany(s => s.Attendances)
+                .HasForeignKey(a => a.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(a => a.Session)
+                .WithMany(s => s.Attendances)
+                .HasForeignKey(a => a.SessionId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(a => a.RecordedByUser)
+                .WithMany()
+                .HasForeignKey(a => a.RecordedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<AttendanceHistory>(entity =>
+        {
+            entity.ToTable("AttendanceCorrection");
+            entity.HasKey(h => h.AttendanceHistoryId);
+
+            entity.Property(h => h.AttendanceHistoryId)
+                .HasColumnName("CorrectionId");
+            entity.Property(h => h.AttendanceId).HasColumnName("AttendanceId");
+            entity.Property(h => h.NewStatus)
+                .HasColumnName("Status")
+                .HasConversion<string>();
+            entity.Property(h => h.ChangedAt).HasColumnName("CorrectedAt");
+            entity.Property(h => h.Reason).HasColumnName("Reason");
+            entity.Property(h => h.ChangedByUserId).HasColumnName("CorrectedBy");
+
+            // The existing database does not show a PreviousStatus column.
+            entity.Ignore(h => h.PreviousStatus);
+
+            entity.HasOne(h => h.Attendance)
+                .WithMany()
+                .HasForeignKey(h => h.AttendanceId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(h => h.ChangedByUser)
+                .WithMany()
+                .HasForeignKey(h => h.ChangedByUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<AdviserAssignment>(entity =>
+        {
+            entity.ToTable("AdviserAssignments");
+            entity.HasKey(a => a.AdviserAssignmentId);
+
+            entity.Property(a => a.AdviserAssignmentId)
+                .HasColumnName("AdviserAssignmentId");
+            entity.Property(a => a.AdviserUserId).HasColumnName("AdviserUserId");
+            entity.Property(a => a.StudentId).HasColumnName("StudentId");
+
+            entity.HasOne(a => a.Adviser)
+                .WithMany()
+                .HasForeignKey(a => a.AdviserUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(a => a.Student)
+                .WithMany()
+                .HasForeignKey(a => a.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
     }
 }
