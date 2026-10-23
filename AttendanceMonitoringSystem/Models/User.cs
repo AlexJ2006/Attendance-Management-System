@@ -1,4 +1,3 @@
-
 namespace AttendanceMonitoringSystem.Models;
 
 public class User
@@ -11,5 +10,8 @@ public class User
 
     public bool IsActive { get; set; } = true;
 
-    public ICollection<UserRole> UserRoles { get; set; } = new List<UserRole>();
+    public string? PasswordHash { get; set; }
+
+    public ICollection<UserRole> UserRoles { get; set; }
+        = new List<UserRole>();
 }

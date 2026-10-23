@@ -11,8 +11,6 @@ public class Module
 
     public int CourseId { get; set; }
 
-    public int YearOfStudy { get; set; }
-
     public Course Course { get; set; } = null!;
 
     public ICollection<ModuleOccurrence> ModuleOccurrences { get; set; }

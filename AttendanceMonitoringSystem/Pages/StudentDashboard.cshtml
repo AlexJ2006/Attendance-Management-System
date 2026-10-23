@@ -1,0 +1,57 @@
+@page
+@model AttendanceMonitoringSystem.Pages.StudentDashboardModel
+
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<div class="container mt-5">
+    <div class="mb-4">
+        <h1>Student Dashboard</h1>
+        <p class="text-muted">
+            Welcome back, @Model.StudentName!
+        </p>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">My Attendance</h5>
+                    <p class="card-text">
+                        View your attendance record and history.
+                    </p>
+                    <a asp-page="/MyAttendance" class="btn btn-primary">
+                        View Attendance
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">My Modules</h5>
+                    <p class="card-text">
+                        View the modules associated with your studies.
+                    </p>
+                    <a asp-page="/MyModules" class="btn btn-primary">
+                        View Modules
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">My Details</h5>
+                    <p class="card-text">
+                        View your student account details.
+                    </p>
+                    <p class="mb-0">@Model.StudentEmail</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

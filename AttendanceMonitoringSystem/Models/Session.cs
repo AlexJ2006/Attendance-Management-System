@@ -7,15 +7,16 @@ public class Session
 
     public int ModuleOccurrenceId { get; set; }
 
-    public DateTime SessionDate { get; set; }
+    public DateTime StartTime { get; set; }
 
-    public TimeSpan StartTime { get; set; }
-
-    public TimeSpan EndTime { get; set; }
+    public DateTime EndTime { get; set; }
 
     public string SessionType { get; set; } = string.Empty;
 
     public SessionStatus Status { get; set; } = SessionStatus.Scheduled;
+
+    // Derived from StartTime; not stored as a separate database column.
+    public DateTime SessionDate => StartTime.Date;
 
     public ModuleOccurrence ModuleOccurrence { get; set; } = null!;
 

@@ -39,6 +39,8 @@ public class ApplicationDbContext : DbContext
             entity.Property(u => u.Name).HasColumnName("Name");
             entity.Property(u => u.Email).HasColumnName("Email");
             entity.Property(u => u.IsActive).HasColumnName("is_active");
+            entity.Property(u => u.PasswordHash)
+            .HasColumnName("PasswordHash");
         });
 
         modelBuilder.Entity<Role>(entity =>
@@ -84,11 +86,12 @@ public class ApplicationDbContext : DbContext
         {
             entity.ToTable("Module");
             entity.HasKey(m => m.ModuleId);
-
             entity.Property(m => m.ModuleId).HasColumnName("ModuleId");
             entity.Property(m => m.CourseId).HasColumnName("CourseId");
             entity.Property(m => m.ModuleName).HasColumnName("ModuleName");
             entity.Property(m => m.ModuleCode).HasColumnName("ModuleCode");
+
+            // The existing Module table has no YearOfStudy column.
 
             entity.HasOne(m => m.Course)
                 .WithMany(c => c.Modules)
@@ -139,20 +142,29 @@ public class ApplicationDbContext : DbContext
             entity.HasIndex(s => s.CourseId);
         });
 
+        
         modelBuilder.Entity<Session>(entity =>
         {
             entity.ToTable("TeachingSession");
             entity.HasKey(s => s.SessionId);
 
-            entity.Property(s => s.SessionId).HasColumnName("SessionId");
+            entity.Property(s => s.SessionId)
+                .HasColumnName("SessionId");
+
             entity.Property(s => s.ModuleOccurrenceId)
                 .HasColumnName("ModuleOccurrenceId");
-            entity.Property(s => s.StartTime).HasColumnName("StartTime");
-            entity.Property(s => s.EndTime).HasColumnName("EndTime");
-            entity.Property(s => s.SessionType).HasColumnName("SessionType");
+
+            entity.Property(s => s.StartTime)
+                .HasColumnName("StartTime");
+
+            entity.Property(s => s.EndTime)
+                .HasColumnName("EndTime");
+
+            entity.Property(s => s.SessionType)
+                .HasColumnName("SessionType");
+
             entity.Property(s => s.Status)
-                .HasColumnName("Status")
-                .HasConversion<string>();
+                .HasColumnName("Status");
 
             entity.Ignore(s => s.SessionDate);
 

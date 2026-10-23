@@ -33,6 +33,30 @@ builder.Services.AddAuthentication("MyCookieAuth")
 // Register authorization
 builder.Services.AddAuthorization();
 
+
+if (Environment.GetEnvironmentVariable("RUN_PASSWORD_SETUP") == "1")
+{
+    var email = Environment.GetEnvironmentVariable("INITIAL_USER_EMAIL");
+    var password = Environment.GetEnvironmentVariable("INITIAL_PASSWORD");
+
+    if (string.IsNullOrWhiteSpace(email) ||
+        string.IsNullOrWhiteSpace(password))
+    {
+        throw new InvalidOperationException(
+            "Set INITIAL_USER_EMAIL and INITIAL_PASSWORD first.");
+    }
+
+    var connectionString =
+        builder.Configuration.GetConnectionString("DefaultConnection")
+        ?? "Data Source=attendance.db";
+
+    await PasswordSetup.ResetPasswordAsync(
+        connectionString, email, password);
+
+    return;
+}
+
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline

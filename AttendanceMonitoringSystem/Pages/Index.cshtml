@@ -11,27 +11,29 @@ ViewData["Title"] = "Home page";
 
     <p class="subtitle">Please sign in to continue</p>
 
+    @if (!string.IsNullOrEmpty(Model.ErrorMessage))
+    {
+        <p class="text-danger">@Model.ErrorMessage</p>
+    }
     <form method="post">
 
-        <div class="form-group">
-            <label for="email">Email Address</label>
-            <input type="email"
-                   id="email"
-                   name="email"
-                   class="form-control"
-                   placeholder="Enter your email"
-                   required />
-        </div>
+        
+    <input type="email"
+        id="email"
+        name="Email"
+        class="form-control"
+        placeholder="Enter your email"
+        autocomplete="username"
+        required />
 
-        <div class="form-group">
-            <label for="password">Password</label>
-            <input type="password"
-                   id="password"
-                   name="password"
-                   class="form-control"
-                   placeholder="Enter your password"
-                   required />
-        </div>
+    <input type="password"
+        id="password"
+        name="Password"
+        class="form-control"
+        placeholder="Enter your password"
+        autocomplete="current-password"
+        required />
+
 
         <button type="submit" class="btn-signin">
             Sign In

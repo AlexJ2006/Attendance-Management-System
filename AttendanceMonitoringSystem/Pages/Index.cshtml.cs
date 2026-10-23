@@ -1,73 +1,81 @@
-using Microsoft.AspNetCore.Authentication;
+
+using AttendanceMonitoringSystem.Data;
+using AttendanceMonitoringSystem.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Authentication;
 using System.Security.Claims;
 
 namespace AttendanceMonitoringSystem.Pages;
 
 public class IndexModel : PageModel
 {
-    [BindProperty]
-    public string Email { get; set; }
+    private readonly ApplicationDbContext _context;
+    private readonly PasswordHasher<User> _hasher = new();
 
-    [BindProperty]
-    public string Password { get; set; }
-
-    public void OnGet()
+    public IndexModel(ApplicationDbContext context)
     {
+        _context = context;
     }
+
+    [BindProperty]
+    public string Email { get; set; } = "";
+
+    [BindProperty]
+    public string Password { get; set; } = "";
+
+    public string? ErrorMessage { get; set; }
 
     public async Task<IActionResult> OnPostAsync()
     {
-        // Temporary Module Leader account
-        if (Email == "moduleleader@example.com" && Password == "Password123")
+        var email = Email.Trim();
+
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
+
+        if (user == null || string.IsNullOrEmpty(user.PasswordHash))
         {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, Email),
-                new Claim(ClaimTypes.Role, "ModuleLeader")
-            };
-
-            var identity = new ClaimsIdentity(
-                claims,
-                "MyCookieAuth");
-
-            var principal = new ClaimsPrincipal(identity);
-
-            await HttpContext.SignInAsync(
-                "MyCookieAuth",
-                principal);
-
-            return RedirectToAction("Index", "Students");
+            ErrorMessage = "Email or password is incorrect.";
+            return Page();
         }
 
-        // Temporary Student account
-        if (Email == "student@example.com" && Password == "Student123")
+        var result = _hasher.VerifyHashedPassword(
+            user, user.PasswordHash, Password);
+
+        if (result == PasswordVerificationResult.Failed)
         {
-            var claims = new List<Claim>
-            {
-                new Claim(ClaimTypes.Name, Email),
-                new Claim(ClaimTypes.Role, "Student")
-            };
-
-            var identity = new ClaimsIdentity(
-                claims,
-                "MyCookieAuth");
-
-            var principal = new ClaimsPrincipal(identity);
-
-            await HttpContext.SignInAsync(
-                "MyCookieAuth",
-                principal);
-
-            return RedirectToPage("/Index");
+            ErrorMessage = "Email or password is incorrect.";
+            return Page();
         }
 
-        // Login failed
-        ModelState.AddModelError(
-            string.Empty,
-            "Invalid email address or password.");
+        // Student accounts go to the student view.
+        var isStudent = await _context.UserRoles
+            .AnyAsync(ur => ur.UserId == user.UserId
+                && ur.Role.RoleName == "Student");
 
-        return Page();
+        if (!isStudent)
+        {
+            ErrorMessage = "This account is not assigned the Student role.";
+            return Page();
+        }
+
+        var claims = new List<Claim>
+        {
+            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+            new Claim(ClaimTypes.Name, user.Name),
+            new Claim(ClaimTypes.Email, user.Email),
+            new Claim(ClaimTypes.Role, "Student")
+        };
+
+        var identity = new ClaimsIdentity(claims, "MyCookieAuth");
+        var principal = new ClaimsPrincipal(identity);
+
+        await HttpContext.SignInAsync("MyCookieAuth", principal);
+
+        return RedirectToPage("/StudentDashboard");
     }
+
+    public void OnGet() { }
 }
