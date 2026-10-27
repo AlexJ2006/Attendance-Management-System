@@ -1,0 +1,120 @@
+
+@page
+@model AttendanceMonitoringSystem.Pages.DashboardModel
+
+@{
+    ViewData["Title"] = "Dashboard";
+}
+
+<div class="container py-4">
+    <div class="mb-4">
+        <h1>Attendance Dashboard</h1>
+        <p class="text-muted">Welcome back, @Model.UserName.</p>
+        <p>
+            Your role(s):
+            @foreach (var role in Model.Roles)
+            {
+                <span class="badge bg-secondary me-1">@role</span>
+            }
+        </p>
+    </div>
+
+    <div class="row g-4">
+        @if (Model.Roles.Contains("Student"))
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Student Dashboard</h5>
+                        <p class="card-text">
+                            Review your attendance and recorded sessions.
+                        </p>
+                        <a asp-page="/StudentDashboard"
+                           class="btn btn-primary">View My Attendance</a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Roles.Contains("Lecturer"))
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Lecturer</h5>
+                        <p class="card-text">
+                            Access attendance for your assigned teaching sessions.
+                        </p>
+                        <span class="text-muted">Lecturer tools to be implemented</span>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Roles.Contains("ModuleLeader"))
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Module Leader</h5>
+                        <p class="card-text">
+                            Review attendance across modules you lead.
+                        </p>
+                        <a asp-controller="Modules" asp-action="Index"
+                           class="btn btn-primary">View Modules</a>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Roles.Contains("CourseLeader"))
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Course Leader</h5>
+                        <p class="card-text">
+                            Review attendance across courses you lead.
+                        </p>
+                        <span class="text-muted">Course leader tools to be implemented</span>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Roles.Contains("Adviser"))
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Adviser</h5>
+                        <p class="card-text">
+                            Support assigned students and review their attendance.
+                        </p>
+                        <span class="text-muted">Adviser tools to be implemented</span>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (Model.Roles.Contains("Administrator"))
+        {
+            <div class="col-md-6 col-lg-4">
+                <div class="card h-100 shadow-sm">
+                    <div class="card-body">
+                        <h5 class="card-title">Administration</h5>
+                        <p class="card-text">
+                            Manage users and system access.
+                        </p>
+                        <a asp-controller="User" asp-action="Index"
+                           class="btn btn-primary">User Management</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <div class="mt-4">
+        <a asp-page="/Logout" class="btn btn-outline-secondary">Log out</a>
+    </div>
+</div>

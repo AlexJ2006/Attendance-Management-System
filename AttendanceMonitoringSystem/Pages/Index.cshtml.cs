@@ -50,31 +50,36 @@ public class IndexModel : PageModel
             return Page();
         }
 
-        // Student accounts go to the student view.
-        var isStudent = await _context.UserRoles
-            .AnyAsync(ur => ur.UserId == user.UserId
-                && ur.Role.RoleName == "Student");
+        var roleNames = await _context.UserRoles
+            .Where(ur => ur.UserId == user.UserId)
+            .Select(ur => ur.Role.RoleName)
+            .Distinct()
+            .ToListAsync();
 
-        if (!isStudent)
+        if (roleNames.Count == 0)
         {
-            ErrorMessage = "This account is not assigned the Student role.";
+            ErrorMessage = "This account has no assigned roles. Please contact an administrator.";
             return Page();
         }
 
         var claims = new List<Claim>
         {
-            new Claim(ClaimTypes.NameIdentifier, user.UserId.ToString()),
-            new Claim(ClaimTypes.Name, user.Name),
-            new Claim(ClaimTypes.Email, user.Email),
-            new Claim(ClaimTypes.Role, "Student")
+            new(ClaimTypes.NameIdentifier, user.UserId.ToString()),
+            new(ClaimTypes.Name, user.Name),
+            new(ClaimTypes.Email, user.Email)
         };
+
+        foreach (var roleName in roleNames)
+        {
+            claims.Add(new Claim(ClaimTypes.Role, roleName));
+        }
 
         var identity = new ClaimsIdentity(claims, "MyCookieAuth");
         var principal = new ClaimsPrincipal(identity);
 
         await HttpContext.SignInAsync("MyCookieAuth", principal);
 
-        return RedirectToPage("/StudentDashboard");
+        return RedirectToPage("/Dashboard");
     }
 
     public void OnGet() { }

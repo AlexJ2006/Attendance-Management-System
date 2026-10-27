@@ -18,6 +18,8 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<StudentService>();
 builder.Services.AddScoped<ModuleService>();
 builder.Services.AddScoped<AttendanceService>();
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<PasswordResetService>();
 
 // Register Razor Pages
 builder.Services.AddRazorPages();
@@ -59,6 +61,7 @@ if (Environment.GetEnvironmentVariable("RUN_PASSWORD_SETUP") == "1")
 
 var app = builder.Build();
 
+
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
 {
@@ -83,3 +86,5 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
+
+
