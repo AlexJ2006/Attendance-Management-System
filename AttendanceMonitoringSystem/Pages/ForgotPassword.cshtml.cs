@@ -37,21 +37,21 @@ public class ForgotPasswordModel : PageModel
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
 
-        Message = "If an active account exists for that email, reset instructions are available.";
-
-        if (user != null)
+        if (user == null)
         {
-            var code = _resetService.CreateCode(user.Email);
-
-            if (_environment.IsDevelopment())
-            {
-                TempData["DemoResetCode"] = code;
-                TempData["ResetEmail"] = user.Email;
-            }
+            Message = "No active account was found for that email address.";
+            return Page();
         }
 
-        // Always redirect, including for unknown email addresses.
-        return RedirectToPage("/ResetPassword");
+        var code = _resetService.CreateCode(user.Email);
+
+        DemoCode = code;
+        Message = "Your reset code has been generated.";
+
+        TempData["ResetEmail"] = user.Email;
+        TempData["DemoResetCode"] = code;
+
+        return Page();
     }
 
     public void OnGet()

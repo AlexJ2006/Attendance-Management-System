@@ -11,6 +11,10 @@ public class Session
 
     public DateTime EndTime { get; set; }
 
+    public string? SessionCode { get; set; }
+
+    public DateTime? CodeExpiresAt { get; set; }
+
     public string SessionType { get; set; } = string.Empty;
 
     public SessionStatus Status { get; set; } = SessionStatus.Scheduled;

@@ -160,6 +160,12 @@ public class ApplicationDbContext : DbContext
             entity.Property(s => s.EndTime)
                 .HasColumnName("EndTime");
 
+            entity.Property(s => s.SessionCode)
+                .HasColumnName("SessionCode");
+
+            entity.Property(s => s.CodeExpiresAt)
+                .HasColumnName("CodeExpiresAt");
+
             entity.Property(s => s.SessionType)
                 .HasColumnName("SessionType");
 
@@ -183,8 +189,7 @@ public class ApplicationDbContext : DbContext
             entity.Property(a => a.StudentId).HasColumnName("StudentId");
             entity.Property(a => a.SessionId).HasColumnName("SessionId");
             entity.Property(a => a.Status)
-                .HasColumnName("Status")
-                .HasConversion<string>();
+                .HasColumnName("Status");
             entity.Property(a => a.RecordedAt).HasColumnName("RecordedAt");
             entity.Property(a => a.RecordedByUserId)
                 .HasColumnName("RecordedByUserId");
