@@ -1,0 +1,263 @@
+```cshtml
+@model AttendanceMonitoringSystem.Models.LecturerAttendanceRegisterViewModel
+@using AttendanceMonitoringSystem.Models
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Lecturer Attendance Register";
+}
+
+<div class="container session-page mb-5">
+
+    <div class="session-page-header">
+        <div>
+            <h2>Attendance Register</h2>
+            <p class="text-muted mb-0">
+                @Model.ModuleCode — @Model.ModuleName
+            </p>
+        </div>
+
+        <a asp-controller="Dashboard"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    @if (TempData["SuccessMessage"] != null)
+    {
+        <div class="alert alert-success" role="alert">
+            @TempData["SuccessMessage"]
+        </div>
+    }
+
+    @if (TempData["ErrorMessage"] != null)
+    {
+        <div class="alert alert-danger" role="alert">
+            @TempData["ErrorMessage"]
+        </div>
+    }
+
+    <div class="card shadow-sm session-info-card mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Session Details</h5>
+
+            <div class="row">
+                <div class="col-md-4 mb-2">
+                    <strong>Session ID:</strong>
+                    @Model.SessionId
+                </div>
+
+                <div class="col-md-4 mb-2">
+                    <strong>Session Type:</strong>
+                    @Model.SessionType
+                </div>
+
+                <div class="col-md-4 mb-2">
+                    <strong>Status:</strong>
+                    @Model.SessionStatus
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <strong>Start:</strong>
+                    @Model.StartTime.ToString("dd MMM yyyy HH:mm")
+                </div>
+
+                <div class="col-md-6 mb-2">
+                    <strong>End:</strong>
+                    @Model.EndTime.ToString("dd MMM yyyy HH:mm")
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <h4 class="mb-3">Attendance Summary</h4>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-4">
+            <div class="card border-success h-100 session-summary-card">
+                <div class="card-body">
+                    <h6 class="text-muted">Present</h6>
+                    <h3 class="text-success">
+                        @Model.PresentCount
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-danger h-100 session-summary-card">
+                <div class="card-body">
+                    <h6 class="text-muted">Absent</h6>
+                    <h3 class="text-danger">
+                        @Model.AbsentCount
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card border-secondary h-100 session-summary-card">
+                <div class="card-body">
+                    <h6 class="text-muted">Not Recorded</h6>
+                    <h3>
+                        @Model.NotRecordedCount
+                    </h3>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="card shadow-sm session-register-card">
+
+        <div class="card-header bg-white">
+            <h5 class="mb-0">Student Attendance</h5>
+            <small class="text-muted">
+                @Model.Students.Count student(s)
+            </small>
+        </div>
+
+        <div class="card-body p-0">
+
+            @if (Model.Students.Count == 0)
+            {
+                <div class="p-4 text-center text-muted">
+                    No students were found on this course.
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped table-hover mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Email</th>
+                                <th>Attendance Status</th>
+                                <th>Manual Recording</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+
+                            @foreach (var student in Model.Students)
+                            {
+                                var statusText = student.Status switch
+                                {
+                                    AttendanceStatus.Present => "Present",
+                                    AttendanceStatus.Absent => "Absent",
+                                    AttendanceStatus.AuthorisedAbsence => "Authorised Absence",
+                                    AttendanceStatus.LateArrival => "Late Arrival",
+                                    AttendanceStatus.LeftEarly => "Left Early",
+                                    _ => "Not Recorded"
+                                };
+
+                                var badgeClass = student.Status switch
+                                {
+                                    AttendanceStatus.Present => "bg-success",
+                                    AttendanceStatus.Absent => "bg-danger",
+                                    AttendanceStatus.AuthorisedAbsence => "bg-info text-dark",
+                                    AttendanceStatus.LateArrival => "bg-warning text-dark",
+                                    AttendanceStatus.LeftEarly => "bg-warning text-dark",
+                                    _ => "bg-secondary"
+                                };
+
+                                <tr>
+
+                                    <td>
+                                        @student.FirstName @student.LastName
+                                    </td>
+
+                                    <td>
+                                        @student.Email
+                                    </td>
+
+                                    <td>
+                                        <span class="badge @badgeClass">
+                                            @statusText
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <form asp-controller="Sessions"
+                                              asp-action="RecordManualAttendance"
+                                              method="post"
+                                              class="d-flex flex-column gap-2">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="sessionId"
+                                                   value="@Model.SessionId" />
+
+                                            <input type="hidden"
+                                                   name="studentId"
+                                                   value="@student.StudentId" />
+
+                                            <select name="status"
+                                                    class="form-select form-select-sm"
+                                                    required
+                                                    aria-label="Attendance status for @student.FirstName @student.LastName">
+
+                                                <option value="">Select status</option>
+
+                                                <option value="Present"
+                                                        selected="@(student.Status == AttendanceStatus.Present)">
+                                                    Present
+                                                </option>
+
+                                                <option value="Absent"
+                                                        selected="@(student.Status == AttendanceStatus.Absent)">
+                                                    Absent
+                                                </option>
+
+                                                <option value="AuthorisedAbsence"
+                                                        selected="@(student.Status == AttendanceStatus.AuthorisedAbsence)">
+                                                    Authorised Absence
+                                                </option>
+
+                                                <option value="LateArrival"
+                                                        selected="@(student.Status == AttendanceStatus.LateArrival)">
+                                                    Late Arrival
+                                                </option>
+
+                                                <option value="LeftEarly"
+                                                        selected="@(student.Status == AttendanceStatus.LeftEarly)">
+                                                    Left Early
+                                                </option>
+
+                                            </select>
+
+                                            <input type="text"
+                                                   name="reason"
+                                                   class="form-control form-control-sm"
+                                                   placeholder="Reason (required for changes)"
+                                                   maxlength="500" />
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-primary">
+                                                @(student.AttendanceId == null
+                                                    ? "Record Attendance"
+                                                    : "Update Status")
+                                            </button>
+
+                                        </form>
+                                    </td>
+
+                                </tr>
+                            }
+
+                        </tbody>
+
+                    </table>
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>
+```

@@ -26,6 +26,8 @@ public class DashboardModel : PageModel
 
     public List<SessionOption> AvailableSessions { get; private set; } = new();
 
+    public List<SessionOption> RegisterSessions { get; private set; } = new();
+
     public string? GeneratedCode { get; private set; }
 
     public DateTime? CodeExpiresAt { get; private set; }
@@ -42,6 +44,7 @@ public class DashboardModel : PageModel
     {
         LoadIdentity();
         await LoadAvailableSessionsAsync();
+        await LoadRegisterSessionsAsync();
     }
 
     public async Task<IActionResult> OnPostGenerateCodeAsync(int sessionId)
@@ -54,6 +57,7 @@ public class DashboardModel : PageModel
         }
 
         await LoadAvailableSessionsAsync();
+        await LoadRegisterSessionsAsync();
 
         var session = await _context.Sessions
             .Include(s => s.ModuleOccurrence)
@@ -99,6 +103,24 @@ public class DashboardModel : PageModel
             .Select(claim => claim.Value)
             .Distinct()
             .ToList();
+    }
+
+    private async Task LoadRegisterSessionsAsync()
+    {
+        RegisterSessions = await _context.Sessions
+            .AsNoTracking()
+            .Include(s => s.ModuleOccurrence)
+                .ThenInclude(mo => mo.Module)
+            .OrderByDescending(s => s.StartTime)
+            .Select(s => new SessionOption
+            {
+                SessionId = s.SessionId,
+                Description = s.ModuleOccurrence.Module.ModuleCode
+                    + " — " + s.ModuleOccurrence.Module.ModuleName
+                    + " (" + s.StartTime.ToString() + ")"
+                    + " — " + s.Status.ToString()
+            })
+            .ToListAsync();
     }
 
     private async Task LoadAvailableSessionsAsync()

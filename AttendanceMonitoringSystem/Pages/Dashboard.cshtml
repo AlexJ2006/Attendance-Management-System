@@ -30,12 +30,14 @@
                             Review your attendance and recorded sessions.
                         </p>
                         <a asp-page="/StudentDashboard"
-                           class="btn btn-primary">View My Attendance</a>
+                           class="btn btn-primary">
+                            View My Attendance
+                        </a>
                     </div>
                 </div>
             </div>
         }
-                        
+
         @if (Model.Roles.Contains("Lecturer"))
         {
             <div class="col-md-6 col-lg-4">
@@ -43,34 +45,62 @@
                     <div class="card-body">
                         <h5 class="card-title">Lecturer</h5>
                         <p class="card-text">
-                            Generate a temporary attendance code for a teaching session.
+                            Manage teaching sessions and student attendance.
                         </p>
 
-                        <form method="post" asp-page-handler="GenerateCode">
-                            <div class="mb-3">
-                                <label for="sessionId" class="form-label">
-                                    Teaching session
-                                </label>
+                        <div class="d-grid gap-2 mb-4">
+                            <a asp-controller="Sessions"
+                               asp-action="Create"
+                               class="btn btn-primary">
+                                Create Teaching Session
+                            </a>
 
-                                <select name="sessionId"
-                                        id="sessionId"
-                                        class="form-select"
-                                        required>
-                                    <option value="">Select a session</option>
-
-                                    @foreach (var session in Model.AvailableSessions)
-                                    {
-                                        <option value="@session.SessionId">
-                                            @session.Description
-                                        </option>
-                                    }
-                                </select>
-                            </div>
-
-                            <button type="submit" class="btn btn-primary">
+                            <a asp-controller="Sessions"
+                               asp-action="GenerateCode"
+                               class="btn btn-success">
                                 Generate Session Code
-                            </button>
-                        </form>
+                            </a>
+
+                            <a asp-controller="AttendanceReports"
+                               asp-action="Index"
+                               class="btn btn-outline-primary">
+                                Attendance Reports
+                            </a>
+                        </div>
+
+                        <hr class="my-4" />
+
+                        <h6 class="mb-3">View Attendance Registers</h6>
+
+                        @if (Model.RegisterSessions.Count == 0)
+                        {
+                            <p class="text-muted small">
+                                No teaching sessions are available.
+                            </p>
+                        }
+                        else
+                        {
+                            <div class="list-group">
+                                @foreach (var session in Model.RegisterSessions)
+                                {
+                                    <div class="list-group-item d-flex justify-content-between
+                                                align-items-center flex-wrap gap-2">
+                                        <div>
+                                            <div class="fw-semibold">
+                                                @session.Description
+                                            </div>
+                                        </div>
+
+                                        <a asp-controller="Sessions"
+                                           asp-action="Register"
+                                           asp-route-id="@session.SessionId"
+                                           class="btn btn-outline-primary btn-sm">
+                                            View Register
+                                        </a>
+                                    </div>
+                                }
+                            </div>
+                        }
 
                         @if (!string.IsNullOrWhiteSpace(Model.Message))
                         {
@@ -90,12 +120,12 @@
                                     @Model.CodeExpiresAt?.ToString("HH:mm:ss")
                                 </p>
                             </div>
-                            }
+                        }
                     </div>
                 </div>
             </div>
         }
-        
+
         @if (Model.Roles.Contains("ModuleLeader"))
         {
             <div class="col-md-6 col-lg-4">
@@ -105,8 +135,11 @@
                         <p class="card-text">
                             Review attendance across modules you lead.
                         </p>
-                        <a asp-controller="Modules" asp-action="Index"
-                           class="btn btn-primary">View Modules</a>
+                        <a asp-controller="Modules"
+                           asp-action="Index"
+                           class="btn btn-primary">
+                            View Modules
+                        </a>
                     </div>
                 </div>
             </div>
@@ -121,7 +154,9 @@
                         <p class="card-text">
                             Review attendance across courses you lead.
                         </p>
-                        <span class="text-muted">Course leader tools to be implemented</span>
+                        <span class="text-muted">
+                            Course leader tools to be implemented
+                        </span>
                     </div>
                 </div>
             </div>
@@ -136,7 +171,12 @@
                         <p class="card-text">
                             Support assigned students and review their attendance.
                         </p>
-                        <span class="text-muted">Adviser tools to be implemented</span>
+
+                        <a asp-controller="AttendanceReports"
+                           asp-action="Index"
+                           class="btn btn-primary">
+                            Attendance Reports
+                        </a>
                     </div>
                 </div>
             </div>
@@ -151,8 +191,20 @@
                         <p class="card-text">
                             Manage users and system access.
                         </p>
-                        <a asp-controller="User" asp-action="Index"
-                           class="btn btn-primary">User Management</a>
+
+                        <div class="d-grid gap-2">
+                            <a asp-controller="User"
+                               asp-action="Index"
+                               class="btn btn-primary">
+                                User Management
+                            </a>
+
+                            <a asp-controller="AttendanceReports"
+                               asp-action="Index"
+                               class="btn btn-outline-primary">
+                                Attendance Reports
+                            </a>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -160,6 +212,9 @@
     </div>
 
     <div class="mt-4">
-        <a asp-page="/Logout" class="btn btn-outline-secondary">Log out</a>
+        <a asp-page="/Logout"
+           class="btn btn-outline-secondary">
+            Log out
+        </a>
     </div>
 </div>

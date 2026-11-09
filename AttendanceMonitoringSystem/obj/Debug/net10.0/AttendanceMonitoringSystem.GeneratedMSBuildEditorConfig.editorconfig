@@ -87,6 +87,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXR0ZW5kYW5jZS9SZWdpc3Rlci5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/AttendanceReports/index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXR0ZW5kYW5jZVJlcG9ydHMvaW5kZXguY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Home/index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvSG9tZS9pbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -97,6 +101,18 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Modules/index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvTW9kdWxlcy9pbmRleC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Sessions/Create.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2Vzc2lvbnMvQ3JlYXRlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Sessions/GenerateCode.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2Vzc2lvbnMvR2VuZXJhdGVDb2RlLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Sessions/Register.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2Vzc2lvbnMvUmVnaXN0ZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Shared/Error.cshtml]
@@ -117,6 +133,10 @@ build_metadata.AdditionalFiles.CssScope =
 
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/_ViewImports.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdJbXBvcnRzLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/_ViewStart.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Pages/Shared/_Layout.cshtml]

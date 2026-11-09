@@ -21,6 +21,9 @@ builder.Services.AddScoped<AttendanceService>();
 builder.Services.AddMemoryCache();
 builder.Services.AddSingleton<PasswordResetService>();
 
+// Automatically update teaching session statuses
+builder.Services.AddHostedService<SessionStatusBackgroundService>();
+
 // Register Razor Pages
 builder.Services.AddRazorPages();
 
@@ -34,7 +37,6 @@ builder.Services.AddAuthentication("MyCookieAuth")
 
 // Register authorization
 builder.Services.AddAuthorization();
-
 
 if (Environment.GetEnvironmentVariable("RUN_PASSWORD_SETUP") == "1")
 {
@@ -58,9 +60,7 @@ if (Environment.GetEnvironmentVariable("RUN_PASSWORD_SETUP") == "1")
     return;
 }
 
-
 var app = builder.Build();
-
 
 // Configure the HTTP request pipeline
 if (!app.Environment.IsDevelopment())
@@ -86,5 +86,3 @@ app.MapControllerRoute(
 app.MapRazorPages();
 
 app.Run();
-
-

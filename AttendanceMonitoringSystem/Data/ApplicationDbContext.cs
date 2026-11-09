@@ -222,8 +222,7 @@ public class ApplicationDbContext : DbContext
                 .HasColumnName("CorrectionId");
             entity.Property(h => h.AttendanceId).HasColumnName("AttendanceId");
             entity.Property(h => h.NewStatus)
-                .HasColumnName("Status")
-                .HasConversion<string>();
+                .HasColumnName("Status");
             entity.Property(h => h.ChangedAt).HasColumnName("CorrectedAt");
             entity.Property(h => h.Reason).HasColumnName("Reason");
             entity.Property(h => h.ChangedByUserId).HasColumnName("CorrectedBy");
@@ -264,3 +263,4 @@ public class ApplicationDbContext : DbContext
         });
     }
 }
+
