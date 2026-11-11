@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using AttendanceMonitoringSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -16,7 +17,14 @@ namespace AttendanceMonitoringSystem.Controllers
 
         public IActionResult Index()
         {
-            var modules = _moduleService.GetAllModules();
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdValue, out int userId))
+            {
+                return Forbid();
+            }
+
+            var modules = _moduleService.GetModulesForModuleLeader(userId);
 
             return View(modules);
         }

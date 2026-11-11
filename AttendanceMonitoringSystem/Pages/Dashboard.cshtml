@@ -1,220 +1,280 @@
-
 @page
-@model AttendanceMonitoringSystem.Pages.DashboardModel
-
+@model AttendanceMonitoringSystem.Pages.StudentDashboardModel
+@using AttendanceMonitoringSystem.Models
 @{
-    ViewData["Title"] = "Dashboard";
+    ViewData["Title"] = "Student Dashboard";
 }
 
+
 <div class="container py-4">
+
     <div class="mb-4">
-        <h1>Attendance Dashboard</h1>
-        <p class="text-muted">Welcome back, @Model.UserName.</p>
-        <p>
-            Your role(s):
-            @foreach (var role in Model.Roles)
-            {
-                <span class="badge bg-secondary me-1">@role</span>
-            }
+        <h1>Student Dashboard</h1>
+        <p class="text-muted">
+            Welcome back, @Model.StudentName!
         </p>
     </div>
 
-    <div class="row g-4">
-        @if (Model.Roles.Contains("Student"))
-        {
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Student Dashboard</h5>
-                        <p class="card-text">
-                            Review your attendance and recorded sessions.
-                        </p>
-                        <a asp-page="/StudentDashboard"
-                           class="btn btn-primary">
-                            View My Attendance
-                        </a>
-                    </div>
+    @if (!string.IsNullOrWhiteSpace(Model.Message))
+    {
+        <div class="alert alert-warning" role="alert">
+            @Model.Message
+        </div>
+    }
+
+    <!-- Attendance overview -->
+    <h4 class="mb-3">My Attendance Overview</h4>
+
+    <div class="row g-3 mb-4">
+
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-start border-success border-4">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Attendance Percentage</p>
+                    <h2 class="text-success mb-0">
+                        @Model.AttendancePercentage.ToString("0.0")%
+                    </h2>
                 </div>
             </div>
-        }
+        </div>
 
-        @if (Model.Roles.Contains("Lecturer"))
-        {
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Lecturer</h5>
-                        <p class="card-text">
-                            Manage teaching sessions and student attendance.
-                        </p>
-
-                        <div class="d-grid gap-2 mb-4">
-                            <a asp-controller="Sessions"
-                               asp-action="Create"
-                               class="btn btn-primary">
-                                Create Teaching Session
-                            </a>
-
-                            <a asp-controller="Sessions"
-                               asp-action="GenerateCode"
-                               class="btn btn-success">
-                                Generate Session Code
-                            </a>
-
-                            <a asp-controller="AttendanceReports"
-                               asp-action="Index"
-                               class="btn btn-outline-primary">
-                                Attendance Reports
-                            </a>
-                        </div>
-
-                        <hr class="my-4" />
-
-                        <h6 class="mb-3">View Attendance Registers</h6>
-
-                        @if (Model.RegisterSessions.Count == 0)
-                        {
-                            <p class="text-muted small">
-                                No teaching sessions are available.
-                            </p>
-                        }
-                        else
-                        {
-                            <div class="list-group">
-                                @foreach (var session in Model.RegisterSessions)
-                                {
-                                    <div class="list-group-item d-flex justify-content-between
-                                                align-items-center flex-wrap gap-2">
-                                        <div>
-                                            <div class="fw-semibold">
-                                                @session.Description
-                                            </div>
-                                        </div>
-
-                                        <a asp-controller="Sessions"
-                                           asp-action="Register"
-                                           asp-route-id="@session.SessionId"
-                                           class="btn btn-outline-primary btn-sm">
-                                            View Register
-                                        </a>
-                                    </div>
-                                }
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(Model.Message))
-                        {
-                            <div class="alert alert-info mt-3" role="status">
-                                @Model.Message
-                            </div>
-                        }
-
-                        @if (!string.IsNullOrWhiteSpace(Model.GeneratedCode))
-                        {
-                            <div class="mt-3 p-3 border rounded">
-                                <p class="mb-1">Attendance code</p>
-                                <h3 class="text-center">@Model.GeneratedCode</h3>
-
-                                <p class="mb-0 small text-muted">
-                                    Expires at:
-                                    @Model.CodeExpiresAt?.ToString("HH:mm:ss")
-                                </p>
-                            </div>
-                        }
-                    </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-start border-primary border-4">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Sessions Attended</p>
+                    <h2 class="text-primary mb-0">
+                        @Model.AttendedCount
+                    </h2>
                 </div>
             </div>
-        }
+        </div>
 
-        @if (Model.Roles.Contains("ModuleLeader"))
-        {
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Module Leader</h5>
-                        <p class="card-text">
-                            Review attendance across modules you lead.
-                        </p>
-                        <a asp-controller="Modules"
-                           asp-action="Index"
-                           class="btn btn-primary">
-                            View Modules
-                        </a>
-                    </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-start border-danger border-4">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Absences</p>
+                    <h2 class="text-danger mb-0">
+                        @Model.AbsentCount
+                    </h2>
                 </div>
             </div>
-        }
+        </div>
 
-        @if (Model.Roles.Contains("CourseLeader"))
-        {
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Course Leader</h5>
-                        <p class="card-text">
-                            Review attendance across courses you lead.
-                        </p>
-                        <span class="text-muted">
-                            Course leader tools to be implemented
-                        </span>
-                    </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 shadow-sm border-start border-warning border-4">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Late Arrivals</p>
+                    <h2 class="text-warning mb-0">
+                        @Model.LateCount
+                    </h2>
                 </div>
             </div>
-        }
+        </div>
 
-        @if (Model.Roles.Contains("Adviser"))
-        {
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Adviser</h5>
-                        <p class="card-text">
-                            Support assigned students and review their attendance.
-                        </p>
-
-                        <a asp-controller="AttendanceReports"
-                           asp-action="Index"
-                           class="btn btn-primary">
-                            Attendance Reports
-                        </a>
-                    </div>
-                </div>
-            </div>
-        }
-
-        @if (Model.Roles.Contains("Administrator"))
-        {
-            <div class="col-md-6 col-lg-4">
-                <div class="card h-100 shadow-sm">
-                    <div class="card-body">
-                        <h5 class="card-title">Administration</h5>
-                        <p class="card-text">
-                            Manage users and system access.
-                        </p>
-
-                        <div class="d-grid gap-2">
-                            <a asp-controller="User"
-                               asp-action="Index"
-                               class="btn btn-primary">
-                                User Management
-                            </a>
-
-                            <a asp-controller="AttendanceReports"
-                               asp-action="Index"
-                               class="btn btn-outline-primary">
-                                Attendance Reports
-                            </a>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        }
     </div>
 
-    <div class="mt-4">
-        <a asp-page="/Logout"
-           class="btn btn-outline-secondary">
-            Log out
-        </a>
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5>Attendance Breakdown</h5>
+
+            <div class="row text-center g-3">
+                <div class="col-6 col-md">
+                    <h4>@Model.PresentCount</h4>
+                    <span class="text-success">Present</span>
+                </div>
+
+                <div class="col-6 col-md">
+                    <h4>@Model.AbsentCount</h4>
+                    <span class="text-danger">Absent</span>
+                </div>
+
+                <div class="col-6 col-md">
+                    <h4>@Model.LateCount</h4>
+                    <span class="text-warning">Late</span>
+                </div>
+
+                <div class="col-6 col-md">
+                    <h4>@Model.LeftEarlyCount</h4>
+                    <span class="text-warning">Left Early</span>
+                </div>
+
+                <div class="col-6 col-md">
+                    <h4>@Model.AuthorisedAbsenceCount</h4>
+                    <span class="text-info">Authorised</span>
+                </div>
+            </div>
+
+            <hr />
+
+            <p class="text-muted small mb-0">
+                @Model.RecordedSessionCount recorded sessions.
+                Authorised absences are excluded from the attendance percentage.
+            </p>
+        </div>
+    </div>
+
+    <!-- Record attendance using a lecturer's session code -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Record My Attendance</h5>
+
+            <p class="text-muted">
+                Enter the six-digit code provided by your lecturer
+                during your session.
+            </p>
+
+            <form method="post" asp-page-handler="SubmitCode">
+                <div class="mb-3">
+                    <label asp-for="SessionCodeInput" class="form-label">
+                        Session code
+                    </label>
+
+                    <input asp-for="SessionCodeInput"
+                           class="form-control"
+                           maxlength="6"
+                           minlength="6"
+                           pattern="[0-9]{6}"
+                           inputmode="numeric"
+                           autocomplete="off"
+                           placeholder="Enter 6-digit code"
+                           required />
+
+                    <span asp-validation-for="SessionCodeInput"
+                          class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Submit Attendance Code
+                </button>
+            </form>
+
+            @if (!string.IsNullOrWhiteSpace(Model.AttendanceMessage))
+            {
+                <div class="alert @(Model.AttendanceMessageIsSuccess
+                    ? "alert-success"
+                    : "alert-warning") mt-3 mb-0"
+                     role="alert">
+                    @Model.AttendanceMessage
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Recent attendance history -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Recent Attendance History</h5>
+        </div>
+
+        <div class="card-body">
+            @if (Model.SessionHistory.Count == 0)
+            {
+                <p class="text-muted mb-0">
+                    You don't have any attendance records yet.
+                </p>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Date and Time</th>
+                                <th>Module</th>
+                                <th>Session Type</th>
+                                <th>Status</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var item in Model.SessionHistory.Take(10))
+                            {
+                                var statusClass = item.Status switch
+                                {
+                                    AttendanceStatus.Present => "bg-success",
+                                    AttendanceStatus.Absent => "bg-danger",
+                                    AttendanceStatus.LateArrival => "bg-warning text-dark",
+                                    AttendanceStatus.LeftEarly => "bg-warning text-dark",
+                                    AttendanceStatus.AuthorisedAbsence => "bg-info text-dark",
+                                    _ => "bg-secondary"
+                                };
+
+                                var statusText = item.Status switch
+                                {
+                                    AttendanceStatus.LateArrival => "Late Arrival",
+                                    AttendanceStatus.LeftEarly => "Left Early",
+                                    AttendanceStatus.AuthorisedAbsence => "Authorised Absence",
+                                    _ => item.Status.ToString()
+                                };
+
+                                <tr>
+                                    <td>@item.SessionDate.ToString("dd MMM yyyy, HH:mm")</td>
+                                    <td>@item.ModuleName</td>
+                                    <td>@item.SessionType</td>
+                                    <td>
+                                        <span class="badge @statusClass">
+                                            @statusText
+                                        </span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+
+                @if (Model.SessionHistory.Count > 10)
+                {
+                    <p class="text-muted small mb-0">
+                        Showing the 10 most recent records.
+                        Visit My Attendance to view your full history.
+                    </p>
+                }
+            }
+        </div>
+    </div>
+
+    <!-- Existing dashboard links -->
+    <div class="row g-4">
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">My Attendance</h5>
+                    <p class="card-text">
+                        View your full attendance record and history.
+                    </p>
+                    <a asp-page="/MyAttendance" class="btn btn-primary">
+                        View Attendance
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">My Modules</h5>
+                    <p class="card-text">
+                        View the modules associated with your studies.
+                    </p>
+                    <a asp-page="/MyModules" class="btn btn-primary">
+                        View Modules
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">My Details</h5>
+                    <p class="card-text">
+                        View your student account details.
+                    </p>
+                    <p class="mb-0">@Model.StudentEmail</p>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>

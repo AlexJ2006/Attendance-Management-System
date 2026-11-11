@@ -1,5 +1,8 @@
+
 using AttendanceMonitoringSystem.Services;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Security.Claims;
 
 namespace AttendanceMonitoringSystem.Controllers
 {
@@ -15,7 +18,6 @@ namespace AttendanceMonitoringSystem.Controllers
         public IActionResult Index()
         {
             var students = _studentService.GetAllStudents();
-
             return View(students);
         }
 
@@ -24,11 +26,24 @@ namespace AttendanceMonitoringSystem.Controllers
             var student = _studentService.GetStudentById(studentId);
 
             if (student == null)
-            {
                 return NotFound();
-            }
 
             return View(student);
+        }
+
+        [Authorize(Roles = "Adviser")]
+        public IActionResult AssignedToMe()
+        {
+            var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            if (!int.TryParse(userIdValue, out int adviserUserId))
+            {
+                return Forbid();
+            }
+
+            var students = _studentService.GetStudentsForAdviser(adviserUserId);
+
+            return View(students);
         }
     }
 }

@@ -25,6 +25,9 @@ public class ApplicationDbContext : DbContext
         => Set<AttendanceHistory>();
     public DbSet<AdviserAssignment> AdviserAssignments
         => Set<AdviserAssignment>();
+    
+    public DbSet<ModuleLeaderAssignment> ModuleLeaderAssignments
+    => Set<ModuleLeaderAssignment>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -259,6 +262,31 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(a => a.Student)
                 .WithMany()
                 .HasForeignKey(a => a.StudentId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+        modelBuilder.Entity<ModuleLeaderAssignment>(entity =>
+        {
+            entity.ToTable("ModuleLeaderAssignments");
+
+            entity.HasKey(a => a.ModuleLeaderAssignmentId);
+
+            entity.Property(a => a.ModuleLeaderAssignmentId)
+                .HasColumnName("ModuleLeaderAssignmentId");
+
+            entity.Property(a => a.ModuleLeaderUserId)
+                .HasColumnName("ModuleLeaderUserId");
+
+            entity.Property(a => a.ModuleId)
+                .HasColumnName("ModuleId");
+
+            entity.HasOne(a => a.ModuleLeader)
+                .WithMany()
+                .HasForeignKey(a => a.ModuleLeaderUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(a => a.Module)
+                .WithMany()
+                .HasForeignKey(a => a.ModuleId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }

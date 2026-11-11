@@ -1,3 +1,4 @@
+
 using System.Security.Claims;
 using AttendanceMonitoringSystem.Data;
 using AttendanceMonitoringSystem.Models;
@@ -35,6 +36,14 @@ public class StudentDashboardModel : PageModel
 
     public int AttendedCount { get; private set; }
     public int RecordedSessionCount { get; private set; }
+    public int EligibleSessionCount { get; private set; }
+
+    public int PresentCount { get; private set; }
+    public int AbsentCount { get; private set; }
+    public int LateCount { get; private set; }
+    public int AuthorisedAbsenceCount { get; private set; }
+    public int LeftEarlyCount { get; private set; }
+
     public decimal AttendancePercentage { get; private set; }
 
     public List<AttendanceHistoryItem> SessionHistory { get; private set; }
@@ -79,7 +88,6 @@ public class StudentDashboardModel : PageModel
 
         DateTime now = DateTime.Now;
 
-        // Only accept a code for a session that is currently running.
         var session = await _context.Sessions
             .FirstOrDefaultAsync(s =>
                 s.SessionCode == code &&
@@ -93,6 +101,7 @@ public class StudentDashboardModel : PageModel
         {
             AttendanceMessage =
                 "This code is invalid, expired, or the session is not currently in progress.";
+
             await LoadDashboardAsync();
             return Page();
         }
@@ -106,6 +115,7 @@ public class StudentDashboardModel : PageModel
         {
             AttendanceMessage =
                 "Your attendance for this session has already been recorded.";
+
             await LoadDashboardAsync();
             return Page();
         }
@@ -123,6 +133,7 @@ public class StudentDashboardModel : PageModel
         {
             AttendanceMessage =
                 "Attendance could not be recorded. It may already exist; please refresh and check your attendance history.";
+
             await LoadDashboardAsync();
             return Page();
         }
@@ -168,17 +179,33 @@ public class StudentDashboardModel : PageModel
             .Where(a => a.Status != AttendanceStatus.NotRecorded)
             .ToList();
 
-        AttendedCount = recordedRecords.Count(a =>
-            a.Status == AttendanceStatus.Present ||
-            a.Status == AttendanceStatus.LateArrival ||
+        PresentCount = recordedRecords.Count(a =>
+            a.Status == AttendanceStatus.Present);
+
+        AbsentCount = recordedRecords.Count(a =>
+            a.Status == AttendanceStatus.Absent);
+
+        LateCount = recordedRecords.Count(a =>
+            a.Status == AttendanceStatus.LateArrival);
+
+        AuthorisedAbsenceCount = recordedRecords.Count(a =>
+            a.Status == AttendanceStatus.AuthorisedAbsence);
+
+        LeftEarlyCount = recordedRecords.Count(a =>
             a.Status == AttendanceStatus.LeftEarly);
+
+        AttendedCount = PresentCount + LateCount + LeftEarlyCount;
 
         RecordedSessionCount = recordedRecords.Count;
 
-        AttendancePercentage = RecordedSessionCount == 0
+        // Authorised absences are excluded from the attendance percentage.
+        EligibleSessionCount =
+            PresentCount + AbsentCount + LateCount + LeftEarlyCount;
+
+        AttendancePercentage = EligibleSessionCount == 0
             ? 0
             : Math.Round(
-                (decimal)AttendedCount / RecordedSessionCount * 100,
+                (decimal)AttendedCount / EligibleSessionCount * 100,
                 1);
 
         SessionHistory = records

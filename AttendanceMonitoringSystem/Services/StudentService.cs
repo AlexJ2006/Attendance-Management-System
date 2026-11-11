@@ -31,5 +31,17 @@ namespace AttendanceMonitoringSystem.Services
                 .Include(s => s.Course)
                 .FirstOrDefault(s => s.StudentId == studentId);
         }
+
+        public List<Student> GetStudentsForAdviser(int adviserUserId)
+        {
+            return _context.AdviserAssignments
+                .AsNoTracking()
+                .Where(a => a.AdviserUserId == adviserUserId)
+                .Select(a => a.Student)
+                .Include(s => s.Course)
+                .OrderBy(s => s.LastName)
+                .ThenBy(s => s.FirstName)
+                .ToList();
+        }
     }
 }
