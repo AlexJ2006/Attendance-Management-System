@@ -1,4 +1,3 @@
-
 using AttendanceMonitoringSystem.Models;
 using Microsoft.EntityFrameworkCore;
 
@@ -29,6 +28,8 @@ public class ApplicationDbContext : DbContext
     public DbSet<ModuleLeaderAssignment> ModuleLeaderAssignments
     => Set<ModuleLeaderAssignment>();
 
+    public DbSet<CourseLeaderAssignment> CourseLeaderAssignments
+    => Set<CourseLeaderAssignment>();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -287,6 +288,32 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(a => a.Module)
                 .WithMany()
                 .HasForeignKey(a => a.ModuleId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<CourseLeaderAssignment>(entity =>
+        {
+            entity.ToTable("CourseLeaderAssignments");
+
+            entity.HasKey(a => a.CourseLeaderAssignmentId);
+
+            entity.Property(a => a.CourseLeaderAssignmentId)
+                .HasColumnName("CourseLeaderAssignmentId");
+
+            entity.Property(a => a.CourseLeaderUserId)
+                .HasColumnName("CourseLeaderUserId");
+
+            entity.Property(a => a.CourseId)
+                .HasColumnName("CourseId");
+
+            entity.HasOne(a => a.CourseLeader)
+                .WithMany()
+                .HasForeignKey(a => a.CourseLeaderUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasOne(a => a.Course)
+                .WithMany()
+                .HasForeignKey(a => a.CourseId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }
