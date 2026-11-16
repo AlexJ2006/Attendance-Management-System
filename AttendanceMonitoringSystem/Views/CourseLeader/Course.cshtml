@@ -1,0 +1,176 @@
+
+@model AttendanceMonitoringSystem.Models.CourseLeaderCourseViewModel
+
+@{
+    // Use the shared site layout and set the page title.
+    Layout = "_Layout";
+    ViewData["Title"] = "Course Monitoring";
+}
+
+<div class="container mt-4">
+
+    @* Course details at the top of the page. *@
+    <div class="mb-4">
+        <h1>@Model.Course.CourseCode - @Model.Course.CourseName</h1>
+
+        <p class="text-muted">
+            Course attendance monitoring
+        </p>
+
+        <a asp-controller="CourseLeader"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    @* Overall attendance for the selected course. *@
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+
+            <h2 class="h5">Overall Course Attendance</h2>
+
+            <p class="display-6 mb-0">
+                @Model.AttendancePercentage%
+            </p>
+
+        </div>
+    </div>
+
+    @* List the modules belonging to this course. *@
+    <section class="mb-5">
+
+        <h2 class="h4 mb-3">Course Modules</h2>
+
+        @if (Model.Modules.Count == 0)
+        {
+            <div class="alert alert-info">
+                No modules have been added to this course.
+            </div>
+        }
+        else
+        {
+            <div class="card shadow-sm">
+                <div class="table-responsive">
+
+                    <table class="table table-striped table-hover mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Module Code</th>
+                                <th>Module Name</th>
+                                <th>Monitoring</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var module in Model.Modules)
+                            {
+                                <tr>
+                                    <td>@module.ModuleCode</td>
+
+                                    <td>@module.ModuleName</td>
+
+                                    <td>
+                                        @* Open the attendance monitoring page for this module. *@
+                                        <a asp-controller="CourseLeader"
+                                           asp-action="Module"
+                                           asp-route-id="@module.ModuleId"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View Module Attendance
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+
+                </div>
+            </div>
+        }
+
+    </section>
+
+    @* List the students enrolled on this course. *@
+    <section class="mb-5">
+
+        <h2 class="h4 mb-3">Course Students</h2>
+
+        @if (Model.Students.Count == 0)
+        {
+            <div class="alert alert-info">
+                There are currently no students enrolled on this course.
+            </div>
+        }
+        else
+        {
+            <div class="card shadow-sm">
+                <div class="table-responsive">
+
+                    <table class="table table-striped table-hover mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Email</th>
+                                <th>Attended</th>
+                                <th>Attendance</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var student in Model.Students)
+                            {
+                                <tr>
+                                    <td>@student.StudentName</td>
+
+                                    <td>@student.Email</td>
+
+                                    <td>
+                                        @student.AttendedCount / @student.TotalRecords
+                                    </td>
+
+                                    <td>
+                                        @if (student.TotalRecords == 0)
+                                        {
+                                            <span class="badge bg-secondary">
+                                                No records
+                                            </span>
+                                        }
+                                        else if (student.AttendancePercentage < 80)
+                                        {
+                                            <span class="badge bg-danger">
+                                                @student.AttendancePercentage%
+                                            </span>
+                                        }
+                                        else
+                                        {
+                                            <span class="badge bg-success">
+                                                @student.AttendancePercentage%
+                                            </span>
+                                        }
+                                    </td>
+
+                                    <td>
+                                        @* Open the student's attendance history. *@
+                                        <a asp-controller="CourseLeader"
+                                           asp-action="Student"
+                                           asp-route-id="@student.StudentId"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View Attendance
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            </div>
+        }
+
+    </section>
+
+</div>

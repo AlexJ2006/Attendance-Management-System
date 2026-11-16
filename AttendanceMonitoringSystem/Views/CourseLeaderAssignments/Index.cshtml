@@ -1,111 +1,157 @@
-
-@model List<AttendanceMonitoringSystem.Models.CourseLeaderAssignment>
+@model AttendanceMonitoringSystem.Models.CourseLeaderDashboardViewModel
 
 @{
-    ViewData["Title"] = "Course Leader Assignments";
+    Layout = "_Layout";
+    ViewData["Title"] = "Course Leader Dashboard";
 }
 
 <div class="container mt-4">
-    <h2>Course Leader Assignments</h2>
-    <p>Assign Course Leaders to courses and manage existing assignments.</p>
 
-    @if (TempData["Success"] != null)
-    {
-        <div class="alert alert-success">
-            @TempData["Success"]
-        </div>
-    }
-
-    @if (TempData["Error"] != null)
-    {
-        <div class="alert alert-danger">
-            @TempData["Error"]
-        </div>
-    }
-
-    <div class="card mb-4">
-        <div class="card-header">
-            <h5>Create Course Leader Assignment</h5>
-        </div>
-
-        <div class="card-body">
-            <form asp-action="Create" method="post">
-                @Html.AntiForgeryToken()
-
-                <div class="mb-3">
-                    <label class="form-label">Course Leader</label>
-                    <select name="courseLeaderUserId"
-                            asp-items="ViewBag.CourseLeaders"
-                            class="form-select" required>
-                        <option value="">Select a Course Leader</option>
-                    </select>
-                </div>
-
-                <div class="mb-3">
-                    <label class="form-label">Course</label>
-                    <select name="courseId"
-                            asp-items="ViewBag.Courses"
-                            class="form-select" required>
-                        <option value="">Select a Course</option>
-                    </select>
-                </div>
-
-                <button type="submit" class="btn btn-primary">
-                    Create Assignment
-                </button>
-            </form>
-        </div>
+    @* Dashboard heading and explanation. *@
+    <div class="mb-4">
+        <h1>Course Leader Dashboard</h1>
+        <p class="text-muted">
+            Monitor your assigned courses, modules and student attendance.
+        </p>
     </div>
 
-    <div class="card">
-        <div class="card-header">
-            <h5>Existing Course Leader Assignments</h5>
-        </div>
+    @* Display the courses assigned to this Course Leader. *@
+    <section class="mb-5">
+        <h2 class="h4 mb-3">My Assigned Courses</h2>
 
-        <div class="card-body">
-            @if (Model.Any())
-            {
+        @if (Model.Courses.Count == 0)
+        {
+            <div class="alert alert-info">
+                No courses have been assigned to you yet.
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+
+                @foreach (var course in Model.Courses)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+
+                                <h3 class="h5">@course.CourseCode</h3>
+
+                                <p class="text-muted">
+                                    @course.CourseName
+                                </p>
+
+                                <hr />
+
+                                <p>
+                                    <strong>Modules:</strong>
+                                    @course.ModuleCount
+                                </p>
+
+                                <p>
+                                    <strong>Students:</strong>
+                                    @course.StudentCount
+                                </p>
+
+                                <p>
+                                    <strong>Attendance:</strong>
+                                    @course.AttendancePercentage%
+                                </p>
+
+                                @* Open the course's monitoring page. *@
+                                <a asp-controller="CourseLeader"
+                                   asp-action="Course"
+                                   asp-route-id="@course.CourseId"
+                                   class="btn btn-primary">
+                                    View Course
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        }
+    </section>
+
+    @* Highlight students who have a recorded attendance percentage
+       below the configured warning threshold. *@
+    <section class="mb-5">
+
+        <h2 class="h4 mb-3">Students Requiring Attendance Attention</h2>
+
+        <p class="text-muted">
+            Students shown here have attendance below
+            @Model.AttendanceWarningThreshold%.
+            Authorised absences and unrecorded entries are excluded
+            from the percentage calculation.
+        </p>
+
+        @if (Model.LowAttendanceStudents.Count == 0)
+        {
+            <div class="alert alert-success">
+                No students with countable attendance records are currently
+                below the attendance warning threshold.
+            </div>
+        }
+        else
+        {
+            <div class="card shadow-sm">
                 <div class="table-responsive">
-                    <table class="table table-striped">
-                        <thead>
+
+                    <table class="table table-striped table-hover mb-0">
+
+                        <thead class="table-light">
                             <tr>
-                                <th>Course Leader</th>
+                                <th>Student</th>
+                                <th>Email</th>
                                 <th>Course</th>
-                                <th>Course Code</th>
-                                <th>Action</th>
+                                <th>Attended</th>
+                                <th>Attendance</th>
+                                <th>Details</th>
                             </tr>
                         </thead>
+
                         <tbody>
-                            @foreach (var assignment in Model)
+                            @foreach (var student in Model.LowAttendanceStudents)
                             {
                                 <tr>
-                                    <td>@assignment.CourseLeader.Name</td>
-                                    <td>@assignment.Course.CourseName</td>
-                                    <td>@assignment.Course.CourseCode</td>
+                                    <td>@student.StudentName</td>
+
+                                    <td>@student.Email</td>
+
                                     <td>
-                                        <form asp-action="Delete"
-                                              method="post"
-                                              onsubmit="return confirm('Remove this assignment?');">
-                                            @Html.AntiForgeryToken()
-                                            <input type="hidden"
-                                                   name="id"
-                                                   value="@assignment.CourseLeaderAssignmentId" />
-                                            <button type="submit"
-                                                    class="btn btn-danger btn-sm">
-                                                Remove
-                                            </button>
-                                        </form>
+                                        @student.CourseCode
+                                        - @student.CourseName
+                                    </td>
+
+                                    <td>@student.AttendedCount / @student.TotalRecords</td>
+
+                                    <td>
+                                        <span class="badge bg-danger">
+                                            @student.AttendancePercentage%
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <a asp-controller="CourseLeader"
+                                           asp-action="Student"
+                                           asp-route-id="@student.StudentId"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View Attendance
+                                        </a>
                                     </td>
                                 </tr>
                             }
                         </tbody>
+
                     </table>
+
                 </div>
-            }
-            else
-            {
-                <p>No Course Leader assignments have been created yet.</p>
-            }
-        </div>
-    </div>
+            </div>
+        }
+
+    </section>
+
 </div>

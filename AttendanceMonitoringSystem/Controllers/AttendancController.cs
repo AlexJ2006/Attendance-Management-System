@@ -1,4 +1,3 @@
-
 using AttendanceMonitoringSystem.Models;
 using AttendanceMonitoringSystem.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -14,27 +13,50 @@ namespace AttendanceMonitoringSystem.Controllers
             _attendanceService = attendanceService;
         }
 
+        // Course Leaders should use their restricted monitoring dashboard,
+        // rather than the general attendance list.
         public IActionResult Index()
         {
+            if (User.IsInRole("CourseLeader"))
+            {
+                return RedirectToAction(
+                    "Index", "CourseLeader");
+            }
+
             var attendance = _attendanceService.GetAllAttendance();
+
             return View(attendance);
         }
 
+        // Course Leaders must not use the attendance registration page.
         public IActionResult Register()
         {
+            if (User.IsInRole("CourseLeader"))
+            {
+                return Forbid();
+            }
+
             return View();
         }
 
+        // Course Leaders must not record or change attendance.
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult Register(
             int studentId,
             int sessionId,
             AttendanceStatus status)
         {
+            if (User.IsInRole("CourseLeader"))
+            {
+                return Forbid();
+            }
+
             if (!Enum.IsDefined(typeof(AttendanceStatus), status))
             {
                 ModelState.AddModelError(
-                    nameof(status), "Please select a valid attendance status.");
+                    nameof(status),
+                    "Please select a valid attendance status.");
 
                 return View();
             }
@@ -48,7 +70,8 @@ namespace AttendanceMonitoringSystem.Controllers
                 RecordedByUserId = 1
             };
 
-            bool recorded = _attendanceService.RecordAttendance(attendance);
+            bool recorded =
+                _attendanceService.RecordAttendance(attendance);
 
             if (!recorded)
             {
