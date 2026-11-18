@@ -9,8 +9,8 @@ namespace AttendanceMonitoringSystem.Services
     {
         private readonly ApplicationDbContext _context;
 
-        // The database context gives this service access to existing courses,
-        // assignments, students, modules, sessions and attendance records.
+        // The database context provides access to courses, assignments,
+        // students, modules, sessions and attendance records.
         public CourseLeaderService(ApplicationDbContext context)
         {
             _context = context;
@@ -31,7 +31,8 @@ namespace AttendanceMonitoringSystem.Services
         public async Task<CourseLeaderDashboardViewModel> GetDashboardAsync(
             int userId)
         {
-            const int warningThreshold = 80;
+            // The SRD defines attendance below 75% as non-compliant.
+            const int warningThreshold = 75;
 
             var model = new CourseLeaderDashboardViewModel
             {
@@ -63,14 +64,15 @@ namespace AttendanceMonitoringSystem.Services
                     .ThenBy(s => s.FirstName)
                     .ToListAsync();
 
-                // Match both the student's course and the module's course.
-                // This prevents attendance from another course being included.
+                // Retrieve attendance records and session dates for
+                // the disengagement calculation.
                 var attendanceRecords = await _context.Attendances
                     .AsNoTracking()
                     .Where(a =>
                         a.Student.CourseId == course.CourseId &&
                         a.Session.ModuleOccurrence.Module.CourseId
                             == course.CourseId)
+                    .Include(a => a.Session)
                     .ToListAsync();
 
                 model.Courses.Add(new CourseLeaderCourseSummaryViewModel
@@ -84,14 +86,30 @@ namespace AttendanceMonitoringSystem.Services
                         CalculateAttendancePercentage(attendanceRecords)
                 });
 
-                // Students without countable attendance records are not
-                // labelled as low-attendance students.
+                // Build attendance and disengagement information for each student.
                 foreach (var student in students)
                 {
                     var studentRecords = attendanceRecords
                         .Where(a => a.StudentId == student.StudentId)
                         .ToList();
 
+                    // Check for two or more consecutive weeks without engagement.
+                    int disengagedWeeks =
+                        GetConsecutiveDisengagedWeeks(studentRecords);
+
+                    if (disengagedWeeks >= 2)
+                    {
+                        var disengagedStudent =
+                            CreateStudentSummary(student, course, studentRecords);
+
+                        disengagedStudent.ConsecutiveWeeksWithoutEngagement =
+                            disengagedWeeks;
+
+                        model.DisengagedStudents.Add(disengagedStudent);
+                    }
+
+                    // Students without countable attendance records are not
+                    // labelled as low-attendance students.
                     int denominator = GetAttendanceDenominator(studentRecords);
 
                     if (denominator == 0)
@@ -110,8 +128,15 @@ namespace AttendanceMonitoringSystem.Services
                 }
             }
 
+            // Show students with the lowest attendance first.
             model.LowAttendanceStudents = model.LowAttendanceStudents
                 .OrderBy(s => s.AttendancePercentage)
+                .ThenBy(s => s.StudentName)
+                .ToList();
+
+            // Show the longest disengagement periods first.
+            model.DisengagedStudents = model.DisengagedStudents
+                .OrderByDescending(s => s.ConsecutiveWeeksWithoutEngagement)
                 .ThenBy(s => s.StudentName)
                 .ToList();
 
@@ -310,7 +335,7 @@ namespace AttendanceMonitoringSystem.Services
         }
 
         // Authorised absences and unrecorded entries are excluded from
-        // the attendance percentage denominator, matching the existing report.
+        // the attendance percentage denominator.
         private static int GetAttendanceDenominator(
             List<Attendance> records)
         {
@@ -339,6 +364,72 @@ namespace AttendanceMonitoringSystem.Services
 
             return Math.Round(
                 (double)attended / denominator * 100, 1);
+        }
+
+        // Counts consecutive calendar teaching weeks where the student
+        // has completed sessions but has not attended any of them.
+        //
+        // Present, Late Arrival and Left Early count as engagement.
+        // Authorised Absence and Not Recorded do not count as engagement.
+        private static int GetConsecutiveDisengagedWeeks(
+            List<Attendance> records)
+        {
+            var weeklyRecords = records
+                .GroupBy(a =>
+                {
+                    // Calculate the Monday of the session's teaching week.
+                    DateTime sessionDate = a.Session.StartTime.Date;
+
+                    int daysSinceMonday =
+                        ((int)sessionDate.DayOfWeek + 6) % 7;
+
+                    return sessionDate.AddDays(-daysSinceMonday);
+                })
+                .OrderBy(g => g.Key)
+                .ToList();
+
+            int consecutiveWeeks = 0;
+            DateTime? previousWeek = null;
+
+            foreach (var week in weeklyRecords)
+            {
+                // A gap in calendar weeks breaks the consecutive sequence.
+                if (previousWeek.HasValue &&
+                    (week.Key - previousWeek.Value).TotalDays != 7)
+                {
+                    consecutiveWeeks = 0;
+                }
+
+                previousWeek = week.Key;
+
+                bool hasEligibleSession = week.Any(a =>
+                    a.Status == AttendanceStatus.Present ||
+                    a.Status == AttendanceStatus.Absent ||
+                    a.Status == AttendanceStatus.LateArrival ||
+                    a.Status == AttendanceStatus.LeftEarly);
+
+                bool hasEngagement = week.Any(a =>
+                    a.Status == AttendanceStatus.Present ||
+                    a.Status == AttendanceStatus.LateArrival ||
+                    a.Status == AttendanceStatus.LeftEarly);
+
+                // Weeks containing only authorised absences or unrecorded
+                // entries are neutral and do not trigger disengagement.
+                if (!hasEligibleSession)
+                {
+                    consecutiveWeeks = 0;
+                }
+                else if (hasEngagement)
+                {
+                    consecutiveWeeks = 0;
+                }
+                else
+                {
+                    consecutiveWeeks++;
+                }
+            }
+
+            return consecutiveWeeks;
         }
     }
 }

@@ -1,3 +1,4 @@
+
 using AttendanceMonitoringSystem.Data;
 using AttendanceMonitoringSystem.Models;
 using AttendanceMonitoringSystem.Services;
@@ -10,6 +11,7 @@ using System.Security.Cryptography;
 
 namespace AttendanceMonitoringSystem.Controllers;
 
+// Only users with the existing Lecturer role can access Tutor session functions.
 [Authorize(Roles = "Lecturer")]
 public class SessionsController : Controller
 {
@@ -24,12 +26,42 @@ public class SessionsController : Controller
         _attendanceService = attendanceService;
     }
 
+    // Get the logged-in Lecturer's database user ID.
+    private int? GetCurrentLecturerUserId()
+    {
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+        if (int.TryParse(userIdValue, out int userId) && userId > 0)
+        {
+            return userId;
+        }
+
+        return null;
+    }
+
+    // Check whether the logged-in Lecturer is assigned to an occurrence.
+    private async Task<bool> IsAssignedToOccurrenceAsync(int occurrenceId)
+    {
+        var userId = GetCurrentLecturerUserId();
+
+        if (userId == null)
+        {
+            return false;
+        }
+
+        return await _context.TutorAssignments.AnyAsync(a =>
+            a.TutorUserId == userId.Value &&
+            a.ModuleOccurrenceId == occurrenceId);
+    }
+
     // CREATE SESSION
 
     [HttpGet]
     public async Task<IActionResult> Create()
     {
         var model = new CreateSessionViewModel();
+
+        // Only show module occurrences assigned to this Tutor.
         await PopulateModuleOccurrencesAsync(model);
 
         return View(model);
@@ -92,6 +124,12 @@ public class SessionsController : Controller
                 nameof(model.ModuleOccurrenceId),
                 "Please select a valid module occurrence.");
         }
+        else if (!await IsAssignedToOccurrenceAsync(
+                     model.ModuleOccurrenceId))
+        {
+            // Prevent a Tutor creating sessions for an unassigned occurrence.
+            return Forbid();
+        }
 
         if (!ModelState.IsValid)
         {
@@ -122,11 +160,23 @@ public class SessionsController : Controller
         return RedirectToAction(nameof(Create));
     }
 
+    // Populate the occurrence dropdown using only this Tutor's assignments.
     private async Task PopulateModuleOccurrencesAsync(
         CreateSessionViewModel model)
     {
+        var userId = GetCurrentLecturerUserId();
+
+        if (userId == null)
+        {
+            model.ModuleOccurrences = new List<SelectListItem>();
+            return;
+        }
+
         model.ModuleOccurrences = await _context.ModuleOccurrences
             .AsNoTracking()
+            .Where(mo => _context.TutorAssignments.Any(a =>
+                a.TutorUserId == userId.Value &&
+                a.ModuleOccurrenceId == mo.ModuleOccurrenceId))
             .Include(mo => mo.Module)
             .OrderBy(mo => mo.Module.ModuleCode)
             .Select(mo => new SelectListItem
@@ -153,6 +203,13 @@ public class SessionsController : Controller
         if (session == null)
         {
             return NotFound();
+        }
+
+        // Check the Tutor assignment before displaying the register.
+        if (!await IsAssignedToOccurrenceAsync(
+                session.ModuleOccurrenceId))
+        {
+            return Forbid();
         }
 
         var module = session.ModuleOccurrence.Module;
@@ -236,10 +293,9 @@ public class SessionsController : Controller
             return RedirectToAction(nameof(Register), new { id = sessionId });
         }
 
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var lecturerUserId = GetCurrentLecturerUserId();
 
-        if (!int.TryParse(userIdValue, out int lecturerUserId) ||
-            lecturerUserId <= 0)
+        if (lecturerUserId == null)
         {
             return Forbid();
         }
@@ -252,6 +308,13 @@ public class SessionsController : Controller
         if (session == null)
         {
             return NotFound();
+        }
+
+        // Check assignment before allowing any attendance changes.
+        if (!await IsAssignedToOccurrenceAsync(
+                session.ModuleOccurrenceId))
+        {
+            return Forbid();
         }
 
         if (session.Status == SessionStatus.Cancelled)
@@ -302,7 +365,7 @@ public class SessionsController : Controller
             var corrected = _attendanceService.CorrectAttendance(
                 existingAttendance.AttendanceId,
                 status,
-                lecturerUserId,
+                lecturerUserId.Value,
                 reason);
 
             TempData[corrected ? "SuccessMessage" : "ErrorMessage"] =
@@ -314,7 +377,7 @@ public class SessionsController : Controller
         }
 
         var lecturerExists = await _context.Users.AnyAsync(u =>
-            u.UserId == lecturerUserId);
+            u.UserId == lecturerUserId.Value);
 
         if (!lecturerExists)
         {
@@ -327,7 +390,7 @@ public class SessionsController : Controller
             SessionId = sessionId,
             Status = status,
             RecordedAt = DateTime.UtcNow,
-            RecordedByUserId = lecturerUserId
+            RecordedByUserId = lecturerUserId.Value
         };
 
         _context.Attendances.Add(attendance);
@@ -355,7 +418,9 @@ public class SessionsController : Controller
     [HttpGet]
     public async Task<IActionResult> GenerateCode()
     {
+        // Only sessions belonging to assigned occurrences are displayed.
         await PopulateAvailableSessionsAsync();
+
         return View();
     }
 
@@ -377,6 +442,13 @@ public class SessionsController : Controller
                 "Please select a valid teaching session.");
 
             return View();
+        }
+
+        // Prevent generating a code for another Tutor's session.
+        if (!await IsAssignedToOccurrenceAsync(
+                session.ModuleOccurrenceId))
+        {
+            return Forbid();
         }
 
         if (session.Status == SessionStatus.Cancelled ||
@@ -410,8 +482,17 @@ public class SessionsController : Controller
         return RedirectToAction(nameof(GenerateCode));
     }
 
+    // Populate the session dropdown using only assigned module occurrences.
     private async Task PopulateAvailableSessionsAsync()
     {
+        var userId = GetCurrentLecturerUserId();
+
+        if (userId == null)
+        {
+            ViewBag.AvailableSessions = new List<SelectListItem>();
+            return;
+        }
+
         ViewBag.AvailableSessions = await _context.Sessions
             .AsNoTracking()
             .Include(s => s.ModuleOccurrence)
@@ -419,7 +500,10 @@ public class SessionsController : Controller
             .Where(s =>
                 s.Status != SessionStatus.Cancelled &&
                 s.Status != SessionStatus.Completed &&
-                s.EndTime > DateTime.Now)
+                s.EndTime > DateTime.Now &&
+                _context.TutorAssignments.Any(a =>
+                    a.TutorUserId == userId.Value &&
+                    a.ModuleOccurrenceId == s.ModuleOccurrenceId))
             .OrderBy(s => s.StartTime)
             .Select(s => new SelectListItem
             {

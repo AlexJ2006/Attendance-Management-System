@@ -56,16 +56,30 @@ public class MyAttendanceModel : PageModel
             .Where(a => a.Status != AttendanceStatus.NotRecorded)
             .ToList();
 
+        // Count sessions where the student attended, including late arrivals
+        // and sessions where the student left early.
         AttendedCount = recorded.Count(a =>
             a.Status == AttendanceStatus.Present ||
             a.Status == AttendanceStatus.LateArrival ||
             a.Status == AttendanceStatus.LeftEarly);
 
+        // Keep the total recorded session count for the attendance history.
         RecordedSessionCount = recorded.Count;
 
-        AttendancePercentage = RecordedSessionCount == 0
+        // Authorised absences must not count against the student's attendance.
+        // Not Recorded sessions have already been excluded above.
+        var eligibleSessionCount = recorded.Count(a =>
+            a.Status == AttendanceStatus.Present ||
+            a.Status == AttendanceStatus.Absent ||
+            a.Status == AttendanceStatus.LateArrival ||
+            a.Status == AttendanceStatus.LeftEarly);
+
+        // Calculate attendance using only eligible sessions.
+        AttendancePercentage = eligibleSessionCount == 0
             ? 0
-            : Math.Round((decimal)AttendedCount / RecordedSessionCount * 100, 1);
+            : Math.Round(
+                (decimal)AttendedCount / eligibleSessionCount * 100,
+                1);
 
         SessionHistory = records
             .OrderByDescending(a => a.Session.StartTime)

@@ -30,6 +30,11 @@ public class ApplicationDbContext : DbContext
 
     public DbSet<CourseLeaderAssignment> CourseLeaderAssignments
     => Set<CourseLeaderAssignment>();
+
+    // Stores which Tutors are assigned to each module occurrence.
+    public DbSet<TutorAssignment> TutorAssignments
+    => Set<TutorAssignment>();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
@@ -314,6 +319,42 @@ public class ApplicationDbContext : DbContext
             entity.HasOne(a => a.Course)
                 .WithMany()
                 .HasForeignKey(a => a.CourseId)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+        // Configure the Tutor-to-module-occurrence assignment table.
+        modelBuilder.Entity<TutorAssignment>(entity =>
+        {
+            entity.ToTable("TutorAssignments");
+
+            entity.HasKey(a => a.TutorAssignmentId);
+
+            entity.Property(a => a.TutorAssignmentId)
+                .HasColumnName("TutorAssignmentId");
+
+            entity.Property(a => a.TutorUserId)
+                .HasColumnName("TutorUserId");
+
+            entity.Property(a => a.ModuleOccurrenceId)
+                .HasColumnName("ModuleOccurrenceId");
+
+            // Prevent the same Tutor being assigned to the same occurrence twice.
+            entity.HasIndex(a => new
+                {
+                    a.TutorUserId,
+                    a.ModuleOccurrenceId
+                })
+                .IsUnique();
+
+            // Link the assignment to an existing Tutor user account.
+            entity.HasOne(a => a.Tutor)
+                .WithMany()
+                .HasForeignKey(a => a.TutorUserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Link the assignment to an existing module occurrence.
+            entity.HasOne(a => a.ModuleOccurrence)
+                .WithMany()
+                .HasForeignKey(a => a.ModuleOccurrenceId)
                 .OnDelete(DeleteBehavior.Restrict);
         });
     }

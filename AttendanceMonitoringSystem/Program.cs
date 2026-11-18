@@ -1,3 +1,4 @@
+
 using AttendanceMonitoringSystem.Data;
 using AttendanceMonitoringSystem.Services;
 using Microsoft.EntityFrameworkCore;
@@ -18,10 +19,16 @@ builder.Services.AddScoped<StudentService>();
 builder.Services.AddScoped<ModuleService>();
 builder.Services.AddScoped<AttendanceService>();
 
-// New service for Course Leader dashboards and read-only monitoring.
+// Register the Course Leader dashboard and monitoring service.
 builder.Services.AddScoped<CourseLeaderService>();
 
+// Register the Module Leader dashboard and monitoring service.
+builder.Services.AddScoped<ModuleLeaderService>();
+
+// Register memory caching.
 builder.Services.AddMemoryCache();
+
+// Register the password reset service.
 builder.Services.AddSingleton<PasswordResetService>();
 
 // Automatically update teaching session statuses.
@@ -89,4 +96,5 @@ app.MapControllerRoute(
 // Map Razor Pages.
 app.MapRazorPages();
 
+// Start the application.
 app.Run();

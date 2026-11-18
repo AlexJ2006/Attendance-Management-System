@@ -32,6 +32,10 @@ public class IndexModel : PageModel
     {
         var email = Email.Trim();
 
+        Console.WriteLine($"LOGIN ATTEMPT: Email received = [{email}]");
+        Console.WriteLine($"LOGIN ATTEMPT: Password length = {Password?.Length ?? 0}");
+
+
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
 
@@ -79,8 +83,16 @@ public class IndexModel : PageModel
 
         await HttpContext.SignInAsync("MyCookieAuth", principal);
 
+        // Send Administrators to their own dashboard first.
+        // Users who also have Student access keep that role.
+        if (roleNames.Contains("Administrator"))
+        {
+            return RedirectToPage("/AdminDashboard");
+        }
+
+        // Keep the existing destination for other users.
         return RedirectToPage("/Dashboard");
-    }
+        }
 
     public void OnGet() { }
 }
