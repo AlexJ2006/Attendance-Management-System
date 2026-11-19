@@ -30,11 +30,22 @@ public class IndexModel : PageModel
 
     public async Task<IActionResult> OnPostAsync()
     {
+        if (string.IsNullOrWhiteSpace(Email))
+        {
+            ErrorMessage = "Please enter your email address.";
+            return Page();
+        }
+
+        if (string.IsNullOrWhiteSpace(Password))
+        {
+            ErrorMessage = "Please enter your password.";
+            return Page();
+        }
+
         var email = Email.Trim();
 
         Console.WriteLine($"LOGIN ATTEMPT: Email received = [{email}]");
-        Console.WriteLine($"LOGIN ATTEMPT: Password length = {Password?.Length ?? 0}");
-
+        Console.WriteLine($"LOGIN ATTEMPT: Password length = {Password.Length}");
 
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Email == email && u.IsActive);
@@ -92,7 +103,7 @@ public class IndexModel : PageModel
 
         // Keep the existing destination for other users.
         return RedirectToPage("/Dashboard");
-        }
+    }
 
     public void OnGet() { }
 }
