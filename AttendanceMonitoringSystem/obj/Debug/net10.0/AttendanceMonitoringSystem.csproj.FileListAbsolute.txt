@@ -1,15 +1,6 @@
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.csproj.AssemblyReference.cache
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/rpswa.dswa.cache.json
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.GeneratedMSBuildEditorConfig.editorconfig
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.AssemblyInfoInputs.cache
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.AssemblyInfo.cs
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.csproj.CoreCompileInputs.cache
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.MvcApplicationPartsAssemblyInfo.cache
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.RazorAssemblyInfo.cache
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.RazorAssemblyInfo.cs
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.sourcelink.json
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/bin/Debug/net10.0/appsettings.Development.json
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/bin/Debug/net10.0/appsettings.json
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/bin/Debug/net10.0/global.json
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/bin/Debug/net10.0/AttendanceMonitoringSystem.staticwebassets.runtime.json
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/bin/Debug/net10.0/AttendanceMonitoringSystem.staticwebassets.endpoints.json
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/bin/Debug/net10.0/AttendanceMonitoringSystem
@@ -131,6 +122,16 @@
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/bin/Debug/net10.0/runtimes/win-arm64/native/e_sqlite3.dll
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/bin/Debug/net10.0/runtimes/win-x64/native/e_sqlite3.dll
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/bin/Debug/net10.0/runtimes/win-x86/native/e_sqlite3.dll
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.csproj.AssemblyReference.cache
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/rpswa.dswa.cache.json
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.GeneratedMSBuildEditorConfig.editorconfig
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.AssemblyInfoInputs.cache
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.AssemblyInfo.cs
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.csproj.CoreCompileInputs.cache
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.MvcApplicationPartsAssemblyInfo.cache
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.RazorAssemblyInfo.cache
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.RazorAssemblyInfo.cs
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.sourcelink.json
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/rjimswa.dswa.cache.json
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/rjsmrazor.dswa.cache.json
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/rjsmcshtml.dswa.cache.json
@@ -138,6 +139,7 @@
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/scopedcss/Views/Shared/_Layout.cshtml.rz.scp.css
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/scopedcss/bundle/AttendanceMonitoringSystem.styles.css
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/scopedcss/projectbundle/AttendanceMonitoringSystem.bundle.scp.css
+/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/sa60sta8rt-{0}-atfobahsgf-atfobahsgf.gz
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/4oh7xrj5j9-{0}-61n19gt1b8-61n19gt1b8.gz
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/g7n3cvk73n-{0}-xtxxf3hu2r-xtxxf3hu2r.gz
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/22vn6bf8l1-{0}-bqjiyaj88i-bqjiyaj88i.gz
@@ -212,4 +214,3 @@
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.pdb
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/AttendanceMonitoringSystem.genruntimeconfig.cache
 /Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/ref/AttendanceMonitoringSystem.dll
-/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/obj/Debug/net10.0/compressed/sa60sta8rt-{0}-atfobahsgf-atfobahsgf.gz
