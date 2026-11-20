@@ -1,5 +1,5 @@
 @page
-@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Administrator")]
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = AttendanceMonitoringSystem.Models.RoleNames.Administrator)]
 
 @{
     // Set the browser page title.
@@ -18,7 +18,7 @@
     <!-- User Management section. -->
     <div class="card mb-3">
         <div class="card-body">
-            <h4 class="card-title">User Management</h4>
+            <h2 class="h4 card-title">User Management</h2>
             <p class="card-text">
                 View user accounts, activate or deactivate accounts,
                 and manage user roles.
@@ -34,7 +34,7 @@
     <!-- Course Leader management section. -->
     <div class="card mb-3">
         <div class="card-body">
-            <h4 class="card-title">Course Leader Assignments</h4>
+            <h2 class="h4 card-title">Course Leader Assignments</h2>
             <p class="card-text">
                 View, create and remove Course Leader assignments.
             </p>
@@ -46,10 +46,37 @@
         </div>
     </div>
 
+    <!-- Tutor management section. -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2 class="h4 card-title">Tutor Assignments</h2>
+            <p class="card-text">
+                Assign Tutors to the module occurrences they teach.
+            </p>
+            <a asp-controller="TutorAssignments"
+               asp-action="Index"
+               class="btn btn-primary">
+                Manage Tutors
+            </a>
+        </div>
+    </div>
+
+    <!-- Attendance records and reports. -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h2 class="h4 card-title">Attendance Records and Reports</h2>
+            <p class="card-text">
+                View every attendance record or generate a filtered report and export it as CSV.
+            </p>
+            <a asp-controller="Attendance" asp-action="Index" class="btn btn-outline-primary">All attendance records</a>
+            <a asp-controller="AttendanceReports" asp-action="Index" class="btn btn-primary">Reports</a>
+        </div>
+    </div>
+
     <!-- Module Leader management section. -->
     <div class="card mb-3">
         <div class="card-body">
-            <h4 class="card-title">Module Leader Assignments</h4>
+            <h2 class="h4 card-title">Module Leader Assignments</h2>
             <p class="card-text">
                 View, create and remove Module Leader assignments.
             </p>

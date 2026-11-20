@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AttendanceMonitoringSystem.Pages;
 
+[Microsoft.AspNetCore.Authorization.AllowAnonymous]
 public class ResetPasswordModel : PageModel
 {
     private readonly ApplicationDbContext _context;

@@ -28,18 +28,19 @@ public class MyModulesModel : PageModel
     {
         StudentName = User.Identity?.Name ?? "Student";
 
-        string email = User.FindFirstValue(ClaimTypes.Email) ?? "";
+        // Identify the student from the signed-in account, not the URL.
+        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-        if (string.IsNullOrWhiteSpace(email))
+        if (!int.TryParse(userIdValue, out var userId))
         {
-            Message = "Your account email could not be found.";
+            Message = "Your account could not be verified. Please sign in again.";
             return;
         }
 
         var student = await _context.Students
             .AsNoTracking()
             .Include(s => s.Course)
-            .FirstOrDefaultAsync(s => s.Email == email);
+            .FirstOrDefaultAsync(s => s.UserId == userId);
 
         if (student == null)
         {

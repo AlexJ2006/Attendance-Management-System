@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AttendanceMonitoringSystem.Pages;
 
+[Microsoft.AspNetCore.Authorization.AllowAnonymous]
 public class ForgotPasswordModel : PageModel
 {
     private readonly ApplicationDbContext _context;
