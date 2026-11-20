@@ -1,0 +1,67 @@
+@using AttendanceMonitoringSystem.Controllers
+@model StudentDetailsViewModel
+@{
+    var s = Model.Student;
+    ViewData["Title"] = $"{s.FirstName} {s.LastName}";
+}
+
+<h1>@s.FirstName @s.LastName</h1>
+
+<div class="row g-4 mb-4">
+    <div class="col-md-6">
+        <div class="card shadow-sm h-100"><div class="card-body">
+            <h2 class="h5">Enrolment details</h2>
+            <dl class="row mb-0">
+                <dt class="col-sm-5">Student number</dt><dd class="col-sm-7">@s.StudentId</dd>
+                <dt class="col-sm-5">Email</dt><dd class="col-sm-7">@s.Email</dd>
+                <dt class="col-sm-5">Course</dt><dd class="col-sm-7">@s.Course?.CourseName (@s.Course?.CourseCode)</dd>
+                <dt class="col-sm-5">Year of study</dt><dd class="col-sm-7">@s.YearOfStudy</dd>
+                <dt class="col-sm-5">Department</dt><dd class="col-sm-7">@s.Department</dd>
+            </dl>
+        </div></div>
+    </div>
+    <div class="col-md-6">
+        <div class="card stat-card h-100 text-center"><div class="card-body">
+            <div class="stat-value">@Model.Percentage.ToString("0.0")%</div>
+            <div class="stat-label">Attendance (records you can view)</div>
+        </div></div>
+    </div>
+</div>
+
+<section class="card shadow-sm" aria-labelledby="records-heading">
+    <div class="card-body">
+        <h2 id="records-heading" class="h5">Attendance records</h2>
+        @if (Model.Records.Count == 0)
+        {
+            <p class="text-muted mb-0">No attendance records are available.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-striped align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th scope="col">Date</th>
+                            <th scope="col">Module</th>
+                            <th scope="col">Session</th>
+                            <th scope="col">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var r in Model.Records)
+                        {
+                            <tr>
+                                <td>@r.SessionDate.ToString("dd MMM yyyy HH:mm")</td>
+                                <td>@r.ModuleCode – @r.ModuleName</td>
+                                <td>@r.SessionType</td>
+                                <td><partial name="_StatusBadge" model="r.Status" /></td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</section>
+
+<a class="btn btn-outline-secondary mt-3" href="javascript:history.back()">Back</a>

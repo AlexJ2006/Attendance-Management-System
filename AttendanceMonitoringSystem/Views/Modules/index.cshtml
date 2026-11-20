@@ -1,0 +1,47 @@
+
+@model List<AttendanceMonitoringSystem.Models.Module>
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Modules";
+}
+
+<div class="students-page">
+    <div class="students-header">
+        <div>
+            <h1>Modules</h1>
+            <p>List of modules available on your course.</p>
+        </div>
+    </div>
+
+    <div class="students-card">
+        <div class="students-card-header">
+            <h2>Module List</h2>
+            <span>@Model.Count modules</span>
+        </div>
+
+        <div class="table-responsive">
+            <table class="students-table">
+                <thead>
+                    <tr>
+                        <th>Module Code</th>
+                        <th>Module Name</th>
+                        <th>Course ID</th>
+                        <th>Year</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var module in Model)
+                    {
+                        <tr>
+                            <td>@module.ModuleCode</td>
+                            <td>@module.ModuleName</td>
+                            <td>@module.CourseId</td>
+                            <td>@module.</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

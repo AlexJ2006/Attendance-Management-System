@@ -1,0 +1,283 @@
+
+@model AttendanceMonitoringSystem.Models.CourseLeaderDashboardViewModel
+
+@{
+    // Use the shared site layout and set the dashboard page title.
+    Layout = "_Layout";
+    ViewData["Title"] = "Course Leader Dashboard";
+}
+
+<div class="container mt-4">
+
+    @* Dashboard heading and explanation. *@
+    <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+        <div>
+            <h1>Course Leader Dashboard</h1>
+            <p class="text-muted mb-0">
+                Monitor your assigned courses, modules and student attendance.
+            </p>
+        </div>
+
+        @* Provide direct access to the Course Leader attendance reports. *@
+        <a asp-controller="CourseLeaderReports"
+           asp-action="Index"
+           class="btn btn-outline-primary">
+            <i class="bi bi-file-earmark-bar-graph"></i>
+            Attendance Reports
+        </a>
+    </div>
+
+    @* Display a summary of the Course Leader's monitoring responsibilities. *@
+    <div class="row g-3 mb-5">
+
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Assigned Courses</p>
+                    <h2>@Model.Courses.Count</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Students Requiring Attention</p>
+                    <h2>@Model.LowAttendanceStudents.Count</h2>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Attendance Warning Threshold</p>
+                    <h2>@Model.AttendanceWarningThreshold%</h2>
+                </div>
+            </div>
+        </div>
+
+        @* Show students with two or more consecutive weeks without engagement. *@
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 border-danger">
+                <div class="card-body">
+                    <p class="text-muted mb-1">Disengagement Flags</p>
+                    <h2 class="text-danger">@Model.DisengagedStudents.Count</h2>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    @* Display the courses assigned to this Course Leader. *@
+    <section class="mb-5">
+
+        <h2 class="h4 mb-3">My Assigned Courses</h2>
+
+        @if (Model.Courses.Count == 0)
+        {
+            <div class="alert alert-info">
+                No courses have been assigned to you yet.
+                Please contact an Administrator if you believe this is incorrect.
+            </div>
+        }
+        else
+        {
+            <div class="row g-3">
+
+                @foreach (var course in Model.Courses)
+                {
+                    <div class="col-md-6 col-lg-4">
+                        <div class="card h-100 shadow-sm">
+                            <div class="card-body">
+
+                                <h3 class="h5">@course.CourseCode</h3>
+
+                                <p class="text-muted">
+                                    @course.CourseName
+                                </p>
+
+                                <hr />
+
+                                <p>
+                                    <strong>Modules:</strong>
+                                    @course.ModuleCount
+                                </p>
+
+                                <p>
+                                    <strong>Students:</strong>
+                                    @course.StudentCount
+                                </p>
+
+                                <p>
+                                    <strong>Attendance:</strong>
+                                    @course.AttendancePercentage%
+                                </p>
+
+                                @* Open the monitoring page for this assigned course. *@
+                                <a asp-controller="CourseLeader"
+                                   asp-action="Course"
+                                   asp-route-id="@course.CourseId"
+                                   class="btn btn-primary">
+                                    View Course
+                                </a>
+
+                            </div>
+                        </div>
+                    </div>
+                }
+
+            </div>
+        }
+
+    </section>
+
+    @* Highlight students below the configured attendance threshold. *@
+    <section class="mb-5">
+
+        <h2 class="h4 mb-3">Students Requiring Attendance Attention</h2>
+
+        <p class="text-muted">
+            Students shown here have attendance below
+            @Model.AttendanceWarningThreshold%.
+            Authorised absences and unrecorded entries are excluded
+            from the percentage calculation.
+        </p>
+
+        @if (Model.LowAttendanceStudents.Count == 0)
+        {
+            <div class="alert alert-success">
+                No students with countable attendance records are currently
+                below the attendance warning threshold.
+            </div>
+        }
+        else
+        {
+            <div class="card shadow-sm">
+                <div class="table-responsive">
+
+                    <table class="table table-striped table-hover mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Email</th>
+                                <th>Course</th>
+                                <th>Attended</th>
+                                <th>Attendance</th>
+                                <th>Details</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var student in Model.LowAttendanceStudents)
+                            {
+                                <tr>
+                                    <td>@student.StudentName</td>
+                                    <td>@student.Email</td>
+
+                                    <td>
+                                        @student.CourseCode - @student.CourseName
+                                    </td>
+
+                                    <td>
+                                        @student.AttendedCount / @student.TotalRecords
+                                    </td>
+
+                                    <td>
+                                        <span class="badge bg-danger">
+                                            @student.AttendancePercentage%
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @* Open the student's attendance history. *@
+                                        <a asp-controller="CourseLeader"
+                                           asp-action="Student"
+                                           asp-route-id="@student.StudentId"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View Attendance
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+
+                </div>
+            </div>
+        }
+
+    </section>
+
+    @* Display students with no engagement across two or more consecutive teaching weeks. *@
+    <section class="mb-5">
+
+        <h2 class="h4 mb-3">Two-Week Disengagement Alerts</h2>
+
+        <p class="text-muted">
+            Students listed here have no recorded attendance engagement
+            across at least two consecutive teaching weeks.
+        </p>
+
+        @if (Model.DisengagedStudents.Count == 0)
+        {
+            <div class="alert alert-success">
+                No students currently meet the two-week disengagement criteria.
+            </div>
+        }
+        else
+        {
+            <div class="card shadow-sm border-danger">
+                <div class="table-responsive">
+
+                    <table class="table table-striped table-hover mb-0">
+
+                        <thead class="table-light">
+                            <tr>
+                                <th>Student</th>
+                                <th>Email</th>
+                                <th>Course</th>
+                                <th>Consecutive Weeks</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var student in Model.DisengagedStudents)
+                            {
+                                <tr>
+                                    <td>@student.StudentName</td>
+                                    <td>@student.Email</td>
+                                    <td>@student.CourseCode</td>
+
+                                    <td>
+                                        <span class="badge bg-danger">
+                                            @student.ConsecutiveWeeksWithoutEngagement
+                                            weeks
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        @* Open the student's attendance history. *@
+                                        <a asp-controller="CourseLeader"
+                                           asp-action="Student"
+                                           asp-route-id="@student.StudentId"
+                                           class="btn btn-sm btn-outline-primary">
+                                            View Attendance
+                                        </a>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+
+                </div>
+            </div>
+        }
+
+    </section>
+
+</div>

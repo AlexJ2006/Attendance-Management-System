@@ -1,0 +1,111 @@
+ @page
+@model AttendanceMonitoringSystem.Pages.StudentDashboardModel
+
+@{
+    ViewData["Title"] = "Student Dashboard";
+}
+
+<div class="container mt-5">
+    <div class="mb-4">
+        <h1>Student Dashboard</h1>
+        <p class="text-muted">
+            Welcome back, @Model.StudentName!
+        </p>
+    </div>
+
+    <!-- Record attendance using a lecturer's session code -->
+    <div class="card shadow-sm mb-4">
+        <div class="card-body">
+            <h5 class="card-title">Record My Attendance</h5>
+            <p class="text-muted">
+                Enter the six-digit code provided by your lecturer
+                during your session.
+            </p>
+
+            <form method="post" asp-page-handler="SubmitCode">
+                <div class="mb-3">
+                    <label asp-for="SessionCodeInput" class="form-label">
+                        Session code
+                    </label>
+
+                    <input asp-for="SessionCodeInput"
+                           class="form-control"
+                           maxlength="6"
+                           minlength="6"
+                           pattern="[0-9]{6}"
+                           inputmode="numeric"
+                           autocomplete="off"
+                           placeholder="Enter 6-digit code"
+                           required />
+
+                    <span asp-validation-for="SessionCodeInput"
+                          class="text-danger"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Submit Attendance Code
+                </button>
+            </form>
+
+            @if (!string.IsNullOrWhiteSpace(Model.AttendanceMessage))
+            {
+                <div class="alert @(Model.AttendanceMessageIsSuccess
+                    ? "alert-success"
+                    : "alert-warning") mt-3 mb-0"
+                     role="alert">
+                    @Model.AttendanceMessage
+                </div>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.Message))
+            {
+                <div class="alert alert-warning mt-3 mb-0" role="alert">
+                    @Model.Message
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- Existing dashboard cards -->
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">My Attendance</h5>
+                    <p class="card-text">
+                        View your attendance record and history.
+                    </p>
+                    <a asp-page="/MyAttendance" class="btn btn-primary">
+                        View Attendance
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">My Modules</h5>
+                    <p class="card-text">
+                        View the modules associated with your studies.
+                    </p>
+                    <a asp-page="/MyModules" class="btn btn-primary">
+                        View Modules
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-6 col-lg-4">
+            <div class="card h-100 shadow-sm">
+                <div class="card-body">
+                    <h5 class="card-title">My Details</h5>
+                    <p class="card-text">
+                        View your student account details.
+                    </p>
+                    <p class="mb-0">@Model.StudentEmail</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

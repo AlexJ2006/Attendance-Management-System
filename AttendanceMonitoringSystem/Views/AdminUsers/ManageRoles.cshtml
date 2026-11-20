@@ -1,0 +1,202 @@
+
+@model AttendanceMonitoringSystem.Models.AdminUserRolesViewModel
+
+@{
+    // Set the browser page title.
+    ViewData["Title"] = "Manage User Roles";
+}
+
+<div class="container mt-4">
+
+    <!-- Heading showing which account is being managed. -->
+    <div class="mb-4">
+        <h1>Manage User Roles</h1>
+
+        <p class="text-muted">
+            Manage the permissions assigned to this user account.
+        </p>
+    </div>
+
+    <!-- Display success messages after role changes. -->
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    <!-- Display errors if a role change cannot be completed. -->
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <!-- Display the account being managed. -->
+    <div class="card mb-4">
+        <div class="card-body">
+            <h4>@Model.Name</h4>
+
+            <p class="mb-1">
+                <strong>Email:</strong> @Model.Email
+            </p>
+
+            <p class="mb-1">
+                <strong>User ID:</strong> @Model.UserId
+            </p>
+
+            <p class="mb-0">
+                <strong>Account status:</strong>
+
+                @if (Model.IsActive)
+                {
+                    <span class="badge bg-success">Active</span>
+                }
+                else
+                {
+                    <span class="badge bg-danger">Inactive</span>
+                }
+            </p>
+        </div>
+    </div>
+
+    <!-- Section for assigning an additional role. -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Assign a Role</h5>
+        </div>
+
+        <div class="card-body">
+            @if (Model.AvailableRoles.Count > 0)
+            {
+                <form asp-controller="AdminUsers"
+                      asp-action="AddRole"
+                      method="post">
+
+                    @Html.AntiForgeryToken()
+
+                    <input type="hidden"
+                           name="userId"
+                           value="@Model.UserId" />
+
+                    <div class="row g-2 align-items-end">
+                        <div class="col-md-8">
+                            <label for="selectedRoleId" class="form-label">
+                                Select a role
+                            </label>
+
+                            <select id="selectedRoleId"
+                                    name="selectedRoleId"
+                                    class="form-select"
+                                    required>
+
+                                <option value="">
+                                    -- Select a role --
+                                </option>
+
+                                @foreach (var role in Model.AvailableRoles)
+                                {
+                                    <option value="@role.RoleId">
+                                        @role.RoleName
+                                    </option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-4">
+                            <button type="submit" class="btn btn-primary">
+                                Assign Role
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    This user already has every available role.
+                </p>
+            }
+        </div>
+    </div>
+
+    <!-- Section displaying the roles currently assigned. -->
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5 class="mb-0">Currently Assigned Roles</h5>
+        </div>
+
+        <div class="card-body">
+            @if (Model.AssignedRoles.Count > 0)
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+
+                        <thead>
+                            <tr>
+                                <th>Role ID</th>
+                                <th>Role Name</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+
+                        <tbody>
+                            @foreach (var role in Model.AssignedRoles)
+                            {
+                                <tr>
+                                    <td>@role.RoleId</td>
+
+                                    <td>
+                                        <span class="badge bg-primary">
+                                            @role.RoleName
+                                        </span>
+                                    </td>
+
+                                    <td>
+                                        <!-- Each form removes only its selected role. -->
+                                        <form asp-controller="AdminUsers"
+                                              asp-action="RemoveRole"
+                                              method="post"
+                                              onsubmit="return confirm('Are you sure you want to remove this role?');">
+
+                                            @Html.AntiForgeryToken()
+
+                                            <input type="hidden"
+                                                   name="userId"
+                                                   value="@Model.UserId" />
+
+                                            <input type="hidden"
+                                                   name="roleId"
+                                                   value="@role.RoleId" />
+
+                                            <button type="submit"
+                                                    class="btn btn-sm btn-outline-danger">
+                                                Remove Role
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p class="text-muted mb-0">
+                    This account currently has no assigned roles.
+                </p>
+            }
+        </div>
+    </div>
+
+    <!-- Navigation back to the main user list. -->
+    <a asp-controller="AdminUsers"
+       asp-action="Index"
+       class="btn btn-outline-secondary">
+        Back to User Management
+    </a>
+
+</div>

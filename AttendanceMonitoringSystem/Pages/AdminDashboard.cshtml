@@ -1,0 +1,63 @@
+@page
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = "Administrator")]
+
+@{
+    // Set the browser page title.
+    ViewData["Title"] = "Administrator Dashboard";
+}
+
+<!-- Main heading for the Administrator Dashboard. -->
+<div class="container mt-4">
+    <h1>Administrator Dashboard</h1>
+    <p class="text-muted">
+        Manage users, course leadership and module leadership assignments.
+    </p>
+
+    <hr />
+
+    <!-- User Management section. -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h4 class="card-title">User Management</h4>
+            <p class="card-text">
+                View user accounts, activate or deactivate accounts,
+                and manage user roles.
+            </p>
+            <a asp-controller="AdminUsers"
+               asp-action="Index"
+               class="btn btn-primary">
+                Manage Users
+            </a>
+        </div>
+    </div>
+
+    <!-- Course Leader management section. -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h4 class="card-title">Course Leader Assignments</h4>
+            <p class="card-text">
+                View, create and remove Course Leader assignments.
+            </p>
+            <a asp-controller="CourseLeaderAssignments"
+               asp-action="Index"
+               class="btn btn-primary">
+                Manage Course Leaders
+            </a>
+        </div>
+    </div>
+
+    <!-- Module Leader management section. -->
+    <div class="card mb-3">
+        <div class="card-body">
+            <h4 class="card-title">Module Leader Assignments</h4>
+            <p class="card-text">
+                View, create and remove Module Leader assignments.
+            </p>
+            <a asp-controller="ModuleLeaderAssignments"
+               asp-action="Index"
+               class="btn btn-primary">
+                Manage Module Leaders
+            </a>
+        </div>
+    </div>
+</div>

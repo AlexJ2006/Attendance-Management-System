@@ -1,0 +1,194 @@
+@using AttendanceMonitoringSystem.Controllers
+@using AttendanceMonitoringSystem.Services
+@model AttendanceReportPageViewModel
+@{
+    ViewData["Title"] = "Report Generation";
+    var f = Model.Filter;
+}
+
+<h1>Report Generation</h1>
+<p class="text-muted">
+    Fields marked <span class="required" aria-hidden="true">*</span><span class="visually-hidden">with an asterisk</span>
+    are required. You can only report on modules and students you are responsible for.
+</p>
+
+<div id="report-messages" aria-live="polite">
+    @if (Model.ErrorMessage != null)
+    {
+        <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+    }
+    @if (Model.InfoMessage != null)
+    {
+        <div class="alert alert-warning" role="alert">@Model.InfoMessage</div>
+    }
+    @if (Model.SuccessMessage != null)
+    {
+        <div class="alert alert-success" role="status">@Model.SuccessMessage</div>
+    }
+    <div id="export-success" class="alert alert-success d-none" role="status">
+        The CSV file has been exported successfully. Check your downloads folder.
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <form method="get" asp-action="Index" class="card shadow-sm" novalidate>
+            <div class="card-body">
+                <input type="hidden" name="generate" value="true" />
+
+                <div class="mb-3">
+                    <label for="ModuleId" class="form-label">Module <span class="required" aria-hidden="true">*</span></label>
+                    <select id="ModuleId" name="ModuleId" class="form-select" aria-required="true"
+                            onchange="this.form.generate.value='false'; this.form.submit();">
+                        <option value="">Select a module</option>
+                        @foreach (var m in Model.Modules)
+                        {
+                            <option value="@m.ModuleId" selected="@(f.ModuleId == m.ModuleId)">@m.ModuleCode – @m.ModuleName</option>
+                        }
+                    </select>
+                    <div class="form-text">Changing the module refreshes the student list.</div>
+                </div>
+
+                <div class="row g-2 mb-3">
+                    <div class="col-6">
+                        <label for="From" class="form-label">From <span class="required" aria-hidden="true">*</span></label>
+                        <input type="date" id="From" name="From" class="form-control" aria-required="true"
+                               value="@f.From?.ToString("yyyy-MM-dd")" />
+                    </div>
+                    <div class="col-6">
+                        <label for="To" class="form-label">To <span class="required" aria-hidden="true">*</span></label>
+                        <input type="date" id="To" name="To" class="form-control" aria-required="true"
+                               value="@f.To?.ToString("yyyy-MM-dd")" />
+                    </div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="Student" class="form-label">Student <span class="required" aria-hidden="true">*</span></label>
+                    <select id="Student" name="Student" class="form-select" aria-required="true">
+                        <option value="">Select a student</option>
+                        <option value="@ReportFilter.AllStudents" selected="@(f.Student == ReportFilter.AllStudents)">All Students</option>
+                        @foreach (var s in Model.Students)
+                        {
+                            <option value="@s.StudentId" selected="@(f.Student == s.StudentId.ToString())">@s.LastName, @s.FirstName (@s.StudentId)</option>
+                        }
+                    </select>
+                </div>
+
+                <div class="d-flex gap-2 flex-wrap">
+                    <button type="submit" class="btn btn-primary">Generate</button>
+                    @if (Model.Report != null)
+                    {
+                        <a class="btn btn-outline-primary" id="export-link"
+                           asp-action="ExportCsv"
+                           asp-route-ModuleId="@f.ModuleId"
+                           asp-route-From="@f.From?.ToString("yyyy-MM-dd")"
+                           asp-route-To="@f.To?.ToString("yyyy-MM-dd")"
+                           asp-route-Student="@f.Student">Export CSV</a>
+                    }
+                    else
+                    {
+                        <button type="button" class="btn btn-outline-secondary" disabled
+                                title="Generate a report first">Export CSV</button>
+                    }
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <div class="col-lg-8">
+        <section class="card shadow-sm h-100" aria-labelledby="preview-heading">
+            <div class="card-header"><h2 id="preview-heading" class="h5 mb-0">Report Preview</h2></div>
+            <div class="card-body">
+                @if (Model.Report == null)
+                {
+                    <p class="text-muted mb-0">Select the filters and choose <strong>Generate</strong> to preview the report.</p>
+                }
+                else
+                {
+                    var r = Model.Report;
+                    <p class="lead">Overall attendance: <strong>@r.OverallPercentage.ToString("0.0")%</strong></p>
+
+                    <h3 class="h6">Student summary</h3>
+                    <div class="table-responsive mb-4">
+                        <table class="table table-sm table-striped">
+                            <caption class="visually-hidden">Attendance summary by student</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Student</th>
+                                    <th scope="col">Present</th>
+                                    <th scope="col">Late</th>
+                                    <th scope="col">Left Early</th>
+                                    <th scope="col">Absent</th>
+                                    <th scope="col">Authorised</th>
+                                    <th scope="col">Attendance</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var s in r.Students)
+                                {
+                                    <tr>
+                                        <th scope="row">@s.StudentName</th>
+                                        <td>@s.Present</td>
+                                        <td>@s.Late</td>
+                                        <td>@s.LeftEarly</td>
+                                        <td>@s.Absent</td>
+                                        <td>@s.Authorised</td>
+                                        <td><strong>@s.Percentage.ToString("0.0")%</strong></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <h3 class="h6">Attendance records</h3>
+                    <div class="table-responsive report-records">
+                        <table class="table table-sm">
+                            <caption class="visually-hidden">Individual attendance records</caption>
+                            <thead>
+                                <tr>
+                                    <th scope="col">Date</th>
+                                    <th scope="col">Session</th>
+                                    <th scope="col">Student</th>
+                                    <th scope="col">Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var row in r.Rows)
+                                {
+                                    <tr>
+                                        <td>@row.SessionDate.ToString("dd/MM/yyyy HH:mm")</td>
+                                        <td>@row.SessionType</td>
+                                        <td>@row.StudentName</td>
+                                        <td><partial name="_StatusBadge" model="row.Status" /></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </section>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        // Show the "exported successfully" message (figure 3.2.3h) once the
+        // server confirms the CSV download has been sent.
+        (function () {
+            var link = document.getElementById('export-link');
+            if (!link) return;
+            link.addEventListener('click', function () {
+                var tries = 0;
+                var timer = setInterval(function () {
+                    if (document.cookie.indexOf('ams-export=done') !== -1) {
+                        document.cookie = 'ams-export=; Max-Age=0; path=/';
+                        document.getElementById('export-success').classList.remove('d-none');
+                        clearInterval(timer);
+                    }
+                    if (++tries > 40) clearInterval(timer);
+                }, 250);
+            });
+        })();
+    </script>
+}

@@ -1,0 +1,91 @@
+@using Microsoft.AspNetCore.Mvc.Rendering
+
+@{
+    Layout = "_Layout";
+    ViewData["Title"] = "Generate Session Code";
+
+    var sessions = ViewBag.AvailableSessions as IEnumerable<SelectListItem>
+                   ?? Enumerable.Empty<SelectListItem>();
+}
+
+<div class="container session-page">
+
+    <div class="session-page-header">
+        <div>
+            <h2>Generate Session Code</h2>
+            <p class="text-muted mb-0">
+                Generate a temporary six-digit attendance code for a teaching session.
+            </p>
+        </div>
+
+        <a asp-controller="Dashboard"
+           asp-action="Index"
+           class="btn btn-outline-secondary">
+            Back to Dashboard
+        </a>
+    </div>
+
+    <div class="card shadow-sm session-form-card">
+        <div class="card-body">
+
+            <form asp-controller="Sessions"
+                  asp-action="GenerateCode"
+                  method="post">
+
+                <div asp-validation-summary="ModelOnly"
+                     class="alert alert-danger">
+                </div>
+
+                <div class="mb-4">
+                    <label for="sessionId" class="form-label">
+                        Teaching Session
+                    </label>
+
+                    <select name="sessionId"
+                            id="sessionId"
+                            class="form-select"
+                            required>
+
+                        <option value="">
+                            -- Select a teaching session --
+                        </option>
+
+                        @foreach (var session in sessions)
+                        {
+                            <option value="@session.Value">
+                                @session.Text
+                            </option>
+                        }
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-success">
+                    Generate Attendance Code
+                </button>
+
+            </form>
+
+            @if (TempData["GeneratedCode"] is string code)
+            {
+                <div class="generated-code-panel mt-4">
+
+                    <p class="mb-2">
+                        @TempData["CodeMessage"]
+                    </p>
+
+                    <div class="generated-code-number">
+                        @code
+                    </div>
+
+                    <p class="mb-0 text-muted">
+                        Expires:
+                        @TempData["CodeExpiresAt"]
+                    </p>
+
+                </div>
+            }
+
+        </div>
+    </div>
+
+</div>

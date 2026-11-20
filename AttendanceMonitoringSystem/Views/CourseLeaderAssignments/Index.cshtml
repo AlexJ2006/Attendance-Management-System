@@ -1,0 +1,111 @@
+
+@model List<AttendanceMonitoringSystem.Models.CourseLeaderAssignment>
+
+@{
+    ViewData["Title"] = "Course Leader Assignments";
+}
+
+<div class="container mt-4">
+    <h2>Course Leader Assignments</h2>
+    <p>Assign Course Leaders to courses and manage existing assignments.</p>
+
+    @if (TempData["Success"] != null)
+    {
+        <div class="alert alert-success">
+            @TempData["Success"]
+        </div>
+    }
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">
+            @TempData["Error"]
+        </div>
+    }
+
+    <div class="card mb-4">
+        <div class="card-header">
+            <h5>Create Course Leader Assignment</h5>
+        </div>
+
+        <div class="card-body">
+            <form asp-action="Create" method="post">
+                @Html.AntiForgeryToken()
+
+                <div class="mb-3">
+                    <label class="form-label">Course Leader</label>
+                    <select name="courseLeaderUserId"
+                            asp-items="ViewBag.CourseLeaders"
+                            class="form-select" required>
+                        <option value="">Select a Course Leader</option>
+                    </select>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">Course</label>
+                    <select name="courseId"
+                            asp-items="ViewBag.Courses"
+                            class="form-select" required>
+                        <option value="">Select a Course</option>
+                    </select>
+                </div>
+
+                <button type="submit" class="btn btn-primary">
+                    Create Assignment
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h5>Existing Course Leader Assignments</h5>
+        </div>
+
+        <div class="card-body">
+            @if (Model.Any())
+            {
+                <div class="table-responsive">
+                    <table class="table table-striped">
+                        <thead>
+                            <tr>
+                                <th>Course Leader</th>
+                                <th>Course</th>
+                                <th>Course Code</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var assignment in Model)
+                            {
+                                <tr>
+                                    <td>@assignment.CourseLeader.Name</td>
+                                    <td>@assignment.Course.CourseName</td>
+                                    <td>@assignment.Course.CourseCode</td>
+                                    <td>
+                                        <form asp-action="Delete"
+                                              method="post"
+                                              onsubmit="return confirm('Remove this assignment?');">
+                                            @Html.AntiForgeryToken()
+                                            <input type="hidden"
+                                                   name="id"
+                                                   value="@assignment.CourseLeaderAssignmentId" />
+                                            <button type="submit"
+                                                    class="btn btn-danger btn-sm">
+                                                Remove
+                                            </button>
+                                        </form>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            }
+            else
+            {
+                <p>No Course Leader assignments have been created yet.</p>
+            }
+        </div>
+    </div>
+</div>

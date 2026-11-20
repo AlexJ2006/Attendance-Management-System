@@ -1,0 +1,59 @@
+@model List<AttendanceMonitoringSystem.Models.Attendance>
+
+@{
+    ViewData["Title"] = "Attendance";
+}
+
+<div class="container">
+    <h1>Attendance</h1>
+
+    <p>Attendance Monitoring System</p>
+
+    <div>
+        <h2>Attendance Overview</h2>
+
+        <p>Use this page to view and manage student attendance.</p>
+
+        <a asp-controller="Attendance"
+           asp-action="Register"
+           class="btn btn-primary mb-3">
+            Register Attendance
+        </a>
+    </div>
+
+    <hr />
+
+    <h2>Recorded Attendance</h2>
+
+    @if (Model.Count == 0)
+    {
+        <p>No attendance records have been recorded yet.</p>
+    }
+    else
+    {
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>Attendance ID</th>
+                    <th>Student ID</th>
+                    <th>Session ID</th>
+                    <th>Status</th>
+                    <th>Recorded At</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @foreach (var attendance in Model)
+                {
+                    <tr>
+                        <td>@attendance.AttendanceId</td>
+                        <td>@attendance.StudentId</td>
+                        <td>@attendance.SessionId</td>
+                        <td>@attendance.Status</td>
+                        <td>@attendance.RecordedAt</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    }
+</div>
