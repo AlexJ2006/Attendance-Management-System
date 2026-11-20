@@ -1,7 +1,0 @@
-@using AttendanceMonitoringSystem.Services
-@model AttendanceMonitoringSystem.Models.AttendanceStatus?
-@{
-    var status = Model ?? AttendanceMonitoringSystem.Models.AttendanceStatus.NotRecorded;
-}
-@* Status is shown with a symbol and text as well as colour (T14). *@
-<span class="status-badge @AttendanceCalculator.CssClass(status)"><span aria-hidden="true">@AttendanceCalculator.Symbol(status)</span> @AttendanceCalculator.Display(status)</span>
