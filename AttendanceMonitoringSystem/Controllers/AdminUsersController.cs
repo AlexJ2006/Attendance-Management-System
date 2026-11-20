@@ -1,7 +1,10 @@
 
 using AttendanceMonitoringSystem.Data;
 using AttendanceMonitoringSystem.Models;
+using AttendanceMonitoringSystem.Services;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -9,7 +12,7 @@ using System.Security.Claims;
 namespace AttendanceMonitoringSystem.Controllers;
 
 // Only Administrators can access user and account management.
-[Authorize(Roles = "Administrator")]
+[Authorize(Roles = RoleNames.Administrator)]
 public class AdminUsersController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -80,14 +83,14 @@ public class AdminUsersController : Controller
 
         if (user == null)
         {
-            TempData["Error"] = "User account not found.";
+            TempData["Error"] = "Account not found. It may have been removed.";
             return RedirectToAction(nameof(Index));
         }
 
         // Avoid unnecessary database updates.
         if (user.IsActive)
         {
-            TempData["Error"] = "This account is already active.";
+            TempData["Error"] = "This account is already activated.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -115,14 +118,14 @@ public class AdminUsersController : Controller
 
         if (user == null)
         {
-            TempData["Error"] = "User account not found.";
+            TempData["Error"] = "Account not found. It may have been removed.";
             return RedirectToAction(nameof(Index));
         }
 
         // Avoid unnecessary database updates.
         if (!user.IsActive)
         {
-            TempData["Error"] = "This account is already inactive.";
+            TempData["Error"] = "This account is already deactivated.";
             return RedirectToAction(nameof(Index));
         }
 
@@ -136,7 +139,7 @@ public class AdminUsersController : Controller
         if (user.UserId == currentUserId)
         {
             TempData["Error"] =
-                "You cannot deactivate your own account.";
+                "Operation not possible: you cannot deactivate your own account.";
 
             return RedirectToAction(nameof(Index));
         }
@@ -302,6 +305,274 @@ public class AdminUsersController : Controller
             $"{assignment.Role.RoleName} role removed successfully.";
 
         return RedirectToAction(nameof(ManageRoles), new { id = userId });
+    }
+
+    // UC06 - create a user account (figure 3.2.5a, test T11).
+    [HttpGet]
+    public async Task<IActionResult> Create()
+    {
+        var model = new AdminUserFormViewModel();
+        await PopulateFormOptionsAsync(model);
+        return View("Form", model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Create(AdminUserFormViewModel model)
+    {
+        model.UserId = null;
+        await ValidateFormAsync(model);
+
+        if (string.IsNullOrWhiteSpace(model.Password))
+        {
+            ModelState.AddModelError(nameof(model.Password), "An initial password is required.");
+        }
+        else if (!IsStrongPassword(model.Password))
+        {
+            ModelState.AddModelError(nameof(model.Password),
+                "The password must be at least 8 characters and include an upper-case letter, a lower-case letter and a number.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await PopulateFormOptionsAsync(model);
+            return View("Form", model);
+        }
+
+        var user = new User
+        {
+            Name = $"{model.FirstName.Trim()} {model.LastName.Trim()}",
+            Email = model.Email.Trim(),
+            IsActive = model.IsActive
+        };
+        user.PasswordHash = new PasswordHasher<User>().HashPassword(user, model.Password!);
+
+        // Save the user, roles and student record together so a failure
+        // never leaves a half-created account (T11: dataset not corrupted).
+        await using var transaction = await _context.Database.BeginTransactionAsync();
+
+        try
+        {
+            _context.Users.Add(user);
+            await _context.SaveChangesAsync();
+
+            foreach (var roleId in model.SelectedRoleIds.Distinct())
+            {
+                _context.UserRoles.Add(new UserRole
+                {
+                    UserId = user.UserId,
+                    RoleId = roleId,
+                    AssignedAt = DateTime.UtcNow
+                });
+            }
+
+            if (await IncludesStudentRoleAsync(model.SelectedRoleIds))
+            {
+                _context.Students.Add(new Student
+                {
+                    UserId = user.UserId,
+                    FirstName = model.FirstName.Trim(),
+                    LastName = model.LastName.Trim(),
+                    Email = user.Email,
+                    CourseId = model.CourseId!.Value,
+                    CohortId = model.CohortId!.Value,
+                    YearOfStudy = model.YearOfStudy!.Value,
+                    Department = model.Department.Trim()
+                });
+            }
+
+            await _context.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch (DbUpdateException)
+        {
+            await transaction.RollbackAsync();
+            ModelState.AddModelError(string.Empty,
+                "The account could not be created. No changes have been saved. Please check the details and try again.");
+            await PopulateFormOptionsAsync(model);
+            return View("Form", model);
+        }
+
+        TempData["Success"] = $"The account for {user.Name} has been created and is " +
+                              (user.IsActive ? "active." : "inactive.");
+
+        return RedirectToAction(nameof(Index));
+    }
+
+    // UC06 - update an existing user's details.
+    [HttpGet]
+    public async Task<IActionResult> Edit(int id)
+    {
+        var user = await _context.Users
+            .AsNoTracking()
+            .Include(u => u.UserRoles)
+            .FirstOrDefaultAsync(u => u.UserId == id);
+
+        if (user == null)
+        {
+            // Figure 3.2.5d - account not found.
+            TempData["Error"] = "Account not found. It may have been removed.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var student = await _context.Students
+            .AsNoTracking()
+            .FirstOrDefaultAsync(s => s.UserId == id);
+
+        var nameParts = user.Name.Split(' ', 2, StringSplitOptions.RemoveEmptyEntries);
+
+        var model = new AdminUserFormViewModel
+        {
+            UserId = user.UserId,
+            FirstName = student?.FirstName ?? nameParts.ElementAtOrDefault(0) ?? "",
+            LastName = student?.LastName ?? nameParts.ElementAtOrDefault(1) ?? "",
+            Email = user.Email,
+            IsActive = user.IsActive,
+            Department = student?.Department ?? "Staff",
+            SelectedRoleIds = user.UserRoles.Select(ur => ur.RoleId).ToList(),
+            HasStudentRecord = student != null,
+            CourseId = student?.CourseId,
+            CohortId = student?.CohortId,
+            YearOfStudy = student?.YearOfStudy
+        };
+
+        await PopulateFormOptionsAsync(model);
+        return View("Form", model);
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Edit(int id, AdminUserFormViewModel model)
+    {
+        model.UserId = id;
+
+        var user = await _context.Users
+            .Include(u => u.UserRoles)
+            .FirstOrDefaultAsync(u => u.UserId == id);
+
+        if (user == null)
+        {
+            TempData["Error"] = "Account not found. It may have been removed.";
+            return RedirectToAction(nameof(Index));
+        }
+
+        var student = await _context.Students.FirstOrDefaultAsync(s => s.UserId == id);
+        model.HasStudentRecord = student != null;
+
+        // Roles are changed on the Manage Roles page, not here.
+        model.SelectedRoleIds = user.UserRoles.Select(ur => ur.RoleId).ToList();
+
+        await ValidateFormAsync(model);
+
+        // Figure 3.2.5g - an Administrator cannot deactivate themselves.
+        if (!model.IsActive && user.UserId == AccessScopeService.GetUserId(User))
+        {
+            ModelState.AddModelError(nameof(model.IsActive),
+                "Operation not possible: you cannot deactivate your own account.");
+        }
+
+        if (!ModelState.IsValid)
+        {
+            await PopulateFormOptionsAsync(model);
+            return View("Form", model);
+        }
+
+        user.Name = $"{model.FirstName.Trim()} {model.LastName.Trim()}";
+        user.Email = model.Email.Trim();
+        user.IsActive = model.IsActive;
+
+        if (student != null)
+        {
+            student.FirstName = model.FirstName.Trim();
+            student.LastName = model.LastName.Trim();
+            student.Email = user.Email;
+            student.Department = model.Department.Trim();
+            student.CourseId = model.CourseId!.Value;
+            student.CohortId = model.CohortId!.Value;
+            student.YearOfStudy = model.YearOfStudy!.Value;
+        }
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException)
+        {
+            ModelState.AddModelError(string.Empty,
+                "The account could not be updated. No changes have been saved.");
+            await PopulateFormOptionsAsync(model);
+            return View("Form", model);
+        }
+
+        TempData["Success"] = $"{user.Name}'s account has been updated.";
+        return RedirectToAction(nameof(Index));
+    }
+
+    // Server-side checks shared by Create and Edit (T11).
+    private async Task ValidateFormAsync(AdminUserFormViewModel model)
+    {
+        var email = model.Email?.Trim() ?? "";
+
+        if (email.Length > 0 && await _context.Users.AnyAsync(u =>
+                u.Email == email && u.UserId != (model.UserId ?? 0)))
+        {
+            ModelState.AddModelError(nameof(model.Email),
+                "An account with this email address already exists.");
+        }
+
+        if (!model.IsEdit && model.SelectedRoleIds.Count == 0)
+        {
+            ModelState.AddModelError(nameof(model.SelectedRoleIds),
+                "Select at least one role.");
+        }
+
+        var validRoleIds = await _context.Roles.Select(r => r.RoleId).ToListAsync();
+        if (model.SelectedRoleIds.Any(id => !validRoleIds.Contains(id)))
+        {
+            ModelState.AddModelError(nameof(model.SelectedRoleIds), "Please select valid roles only.");
+        }
+
+        var needsStudentDetails = model.IsEdit
+            ? model.HasStudentRecord
+            : await IncludesStudentRoleAsync(model.SelectedRoleIds);
+
+        if (needsStudentDetails)
+        {
+            if (model.CourseId == null || !await _context.Courses.AnyAsync(c => c.CourseId == model.CourseId))
+                ModelState.AddModelError(nameof(model.CourseId), "Course is required for students.");
+            if (model.CohortId == null || !await _context.Cohorts.AnyAsync(c => c.CohortId == model.CohortId))
+                ModelState.AddModelError(nameof(model.CohortId), "Cohort is required for students.");
+            if (model.YearOfStudy == null)
+                ModelState.AddModelError(nameof(model.YearOfStudy), "Year of study is required for students.");
+        }
+    }
+
+    private async Task<bool> IncludesStudentRoleAsync(IEnumerable<int> roleIds)
+    {
+        var ids = roleIds.ToList();
+        return await _context.Roles.AnyAsync(r =>
+            ids.Contains(r.RoleId) && r.RoleName == RoleNames.Student);
+    }
+
+    private static bool IsStrongPassword(string password) =>
+        password.Length >= 8 &&
+        password.Any(char.IsUpper) &&
+        password.Any(char.IsLower) &&
+        password.Any(char.IsDigit);
+
+    private async Task PopulateFormOptionsAsync(AdminUserFormViewModel model)
+    {
+        model.AvailableRoles = await _context.Roles.AsNoTracking().OrderBy(r => r.RoleId).ToListAsync();
+
+        model.Courses = await _context.Courses.AsNoTracking()
+            .OrderBy(c => c.CourseName)
+            .Select(c => new SelectListItem(c.CourseName + " (" + c.CourseCode + ")", c.CourseId.ToString()))
+            .ToListAsync();
+
+        model.Cohorts = await _context.Cohorts.AsNoTracking()
+            .OrderBy(c => c.CohortName)
+            .Select(c => new SelectListItem(c.CohortName, c.CohortId.ToString()))
+            .ToListAsync();
     }
 
     // Build the information required by the role management page.

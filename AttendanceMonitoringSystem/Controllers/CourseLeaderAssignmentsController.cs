@@ -8,7 +8,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace AttendanceMonitoringSystem.Controllers
 {
-    [Authorize(Roles = "Administrator")]
+    [Authorize(Roles = RoleNames.Administrator)]
     public class CourseLeaderAssignmentsController : Controller
     {
         private readonly ApplicationDbContext _context;
@@ -41,7 +41,7 @@ namespace AttendanceMonitoringSystem.Controllers
                 .AnyAsync(u => u.UserId == courseLeaderUserId
                     && u.IsActive
                     && u.UserRoles.Any(ur =>
-                        ur.Role.RoleName == "CourseLeader"));
+                        ur.Role.RoleName == RoleNames.CourseLeader));
 
             var courseExists = await _context.Courses
                 .AnyAsync(c => c.CourseId == courseId);
@@ -107,7 +107,7 @@ namespace AttendanceMonitoringSystem.Controllers
                 .AsNoTracking()
                 .Where(u => u.IsActive &&
                     u.UserRoles.Any(ur =>
-                        ur.Role.RoleName == "CourseLeader"))
+                        ur.Role.RoleName == RoleNames.CourseLeader))
                 .OrderBy(u => u.Name)
                 .ToListAsync();
 

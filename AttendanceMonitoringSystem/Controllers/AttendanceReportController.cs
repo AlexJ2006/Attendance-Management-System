@@ -1,208 +1,161 @@
-
-using AttendanceMonitoringSystem.Data;
 using AttendanceMonitoringSystem.Models;
+using AttendanceMonitoringSystem.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using System.Security.Claims;
 
 namespace AttendanceMonitoringSystem.Controllers;
 
-[Authorize(Roles = "Lecturer,Adviser,Administrator")]
+// UC05 - Generate attendance report (wireframe 3.2.3, tests T09 and T10).
+// Every member of staff can run reports, but only on the modules and
+// students inside their own academic scope (ADR05, test T08).
+[Authorize(Roles = RoleNames.AllStaff)]
 public class AttendanceReportsController : Controller
 {
-    private readonly ApplicationDbContext _context;
+    private readonly AccessScopeService _scopeService;
+    private readonly ReportService _reportService;
+    private readonly ILogger<AttendanceReportsController> _logger;
 
-    public AttendanceReportsController(ApplicationDbContext context)
+    public AttendanceReportsController(
+        AccessScopeService scopeService,
+        ReportService reportService,
+        ILogger<AttendanceReportsController> logger)
     {
-        _context = context;
+        _scopeService = scopeService;
+        _reportService = reportService;
+        _logger = logger;
     }
 
-    public async Task<IActionResult> Index(
-        DateTime? startDate,
-        DateTime? endDate,
-        int? courseId,
-        int? moduleId)
+    [HttpGet]
+    public async Task<IActionResult> Index(ReportFilter filter, bool generate = false)
     {
-        var userIdValue = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        var scope = await _scopeService.GetStaffScopeAsync(User);
+        var model = await BuildModelAsync(filter, scope);
 
-        if (!int.TryParse(userIdValue, out int userId))
+        if (!generate)
+        {
+            return View(model);
+        }
+
+        var error = ReportService.Validate(filter);
+
+        if (error != null)
+        {
+            model.ErrorMessage = error;
+            return View(model);
+        }
+
+        // A module outside the user's scope is refused outright (T08).
+        if (!model.Modules.Any(m => m.ModuleId == filter.ModuleId))
         {
             return Forbid();
         }
 
-        var query = _context.Attendances
-            .AsNoTracking()
-            .Include(a => a.Student)
-                .ThenInclude(s => s.Course)
-            .Include(a => a.Session)
-                .ThenInclude(s => s.ModuleOccurrence)
-                    .ThenInclude(o => o.Module)
-            .AsQueryable();
-
-        // Advisers can only see attendance for their assigned students.
-        if (User.IsInRole("Adviser"))
+        if (filter.Student != ReportFilter.AllStudents &&
+            !model.Students.Any(s => s.StudentId.ToString() == filter.Student))
         {
-            var assignedStudentIds = await _context.AdviserAssignments
-                .Where(a => a.AdviserUserId == userId)
-                .Select(a => a.StudentId)
-                .ToListAsync();
-
-            query = query.Where(a =>
-                assignedStudentIds.Contains(a.StudentId));
+            return Forbid();
         }
 
-        // Apply date filters to the teaching session.
-        if (startDate.HasValue)
+        try
         {
-            var start = startDate.Value.Date;
-
-            query = query.Where(a =>
-                a.Session.StartTime >= start);
+            model.Report = await _reportService.GenerateAsync(filter, scope);
+        }
+        catch (Exception ex)
+        {
+            // Figure 3.2.3e - general report generation failure.
+            _logger.LogError(ex, "Report generation failed.");
+            model.ErrorMessage = "The report could not be generated. Please try again.";
+            return View(model);
         }
 
-        if (endDate.HasValue)
+        if (model.Report.Rows.Count == 0)
         {
-            var endExclusive = endDate.Value.Date.AddDays(1);
-
-            query = query.Where(a =>
-                a.Session.StartTime < endExclusive);
+            // Figure 3.2.3d - no matching records.
+            model.InfoMessage = "No attendance records were found for the selected filters.";
+            model.Report = null;
         }
-
-        if (courseId.HasValue)
+        else
         {
-            query = query.Where(a =>
-                a.Student.CourseId == courseId.Value);
+            // Figure 3.2.3g - report generated successfully.
+            model.SuccessMessage =
+                $"Report generated successfully: {model.Report.Rows.Count} attendance " +
+                $"record{(model.Report.Rows.Count == 1 ? "" : "s")} for " +
+                $"{model.Report.Students.Count} student{(model.Report.Students.Count == 1 ? "" : "s")}.";
         }
-
-        if (moduleId.HasValue)
-        {
-            query = query.Where(a =>
-                a.Session.ModuleOccurrence.ModuleId == moduleId.Value);
-        }
-
-        var attendanceRecords = await query.ToListAsync();
-
-        var model = new AttendanceReportViewModel
-        {
-            StartDate = startDate,
-            EndDate = endDate,
-            CourseId = courseId,
-            ModuleId = moduleId,
-
-            PresentCount = attendanceRecords.Count(a =>
-                a.Status == AttendanceStatus.Present),
-
-            AbsentCount = attendanceRecords.Count(a =>
-                a.Status == AttendanceStatus.Absent),
-
-            AuthorisedAbsenceCount = attendanceRecords.Count(a =>
-                a.Status == AttendanceStatus.AuthorisedAbsence),
-
-            LateCount = attendanceRecords.Count(a =>
-                a.Status == AttendanceStatus.LateArrival),
-
-            LeftEarlyCount = attendanceRecords.Count(a =>
-                a.Status == AttendanceStatus.LeftEarly),
-
-            NotRecordedCount = attendanceRecords.Count(a =>
-                a.Status == AttendanceStatus.NotRecorded)
-        };
-
-        model.TotalRecords = attendanceRecords.Count;
-
-        // Present, late and left early count as attended.
-        // Authorised absences and unrecorded entries are excluded
-        // from the attendance percentage denominator.
-        int percentageDenominator =
-            model.PresentCount +
-            model.AbsentCount +
-            model.LateCount +
-            model.LeftEarlyCount;
-
-        model.AttendancePercentage = percentageDenominator == 0
-            ? 0
-            : Math.Round(
-                (double)(model.PresentCount +
-                         model.LateCount +
-                         model.LeftEarlyCount)
-                / percentageDenominator * 100,
-                1);
-
-        // Build the student-level report.
-        model.Students = attendanceRecords
-            .GroupBy(a => a.StudentId)
-            .Select(group =>
-            {
-                int attended = group.Count(a =>
-                    a.Status == AttendanceStatus.Present ||
-                    a.Status == AttendanceStatus.LateArrival ||
-                    a.Status == AttendanceStatus.LeftEarly);
-
-                int denominator = group.Count(a =>
-                    a.Status == AttendanceStatus.Present ||
-                    a.Status == AttendanceStatus.Absent ||
-                    a.Status == AttendanceStatus.LateArrival ||
-                    a.Status == AttendanceStatus.LeftEarly);
-
-                var student = group.First().Student;
-
-                return new AttendanceReportStudentViewModel
-                {
-                    StudentId = student.StudentId,
-                    StudentName = $"{student.FirstName} {student.LastName}",
-                    Email = student.Email,
-                    CourseName = student.Course.CourseName,
-
-                    TotalSessions = group.Count(),
-
-                    PresentCount = group.Count(a =>
-                        a.Status == AttendanceStatus.Present),
-
-                    AbsentCount = group.Count(a =>
-                        a.Status == AttendanceStatus.Absent),
-
-                    AuthorisedAbsenceCount = group.Count(a =>
-                        a.Status == AttendanceStatus.AuthorisedAbsence),
-
-                    LateCount = group.Count(a =>
-                        a.Status == AttendanceStatus.LateArrival),
-
-                    LeftEarlyCount = group.Count(a =>
-                        a.Status == AttendanceStatus.LeftEarly),
-
-                    AttendancePercentage = denominator == 0
-                        ? 0
-                        : Math.Round((double)attended / denominator * 100, 1)
-                };
-            })
-            .OrderBy(s => s.StudentName)
-            .ToList();
-
-        // Only show courses and modules relevant to the permitted
-        // attendance records.
-        var relevantCourseIds = attendanceRecords
-            .Select(a => a.Student.CourseId)
-            .Distinct()
-            .ToList();
-
-        var relevantModuleIds = attendanceRecords
-            .Select(a => a.Session.ModuleOccurrence.ModuleId)
-            .Distinct()
-            .ToList();
-
-        model.Courses = await _context.Courses
-            .AsNoTracking()
-            .Where(c => relevantCourseIds.Contains(c.CourseId))
-            .OrderBy(c => c.CourseName)
-            .ToListAsync();
-
-        model.Modules = await _context.Modules
-            .AsNoTracking()
-            .Where(m => relevantModuleIds.Contains(m.ModuleId))
-            .OrderBy(m => m.ModuleCode)
-            .ToListAsync();
 
         return View(model);
     }
+
+    [HttpGet]
+    public async Task<IActionResult> ExportCsv(ReportFilter filter)
+    {
+        var scope = await _scopeService.GetStaffScopeAsync(User);
+        var error = ReportService.Validate(filter);
+
+        if (error != null)
+        {
+            TempData["ReportError"] = error;
+            return RedirectToAction(nameof(Index), new { filter.ModuleId, filter.From, filter.To, filter.Student });
+        }
+
+        var modules = await _reportService.GetPermittedModulesAsync(scope);
+        if (!modules.Any(m => m.ModuleId == filter.ModuleId))
+        {
+            return Forbid();
+        }
+
+        try
+        {
+            var report = await _reportService.GenerateAsync(filter, scope);
+
+            if (report.Rows.Count == 0)
+            {
+                TempData["ReportInfo"] = "No attendance records were found for the selected filters, so there is nothing to export.";
+                return RedirectToAction(nameof(Index), new { filter.ModuleId, filter.From, filter.To, filter.Student });
+            }
+
+            var module = modules.First(m => m.ModuleId == filter.ModuleId);
+            var fileName =
+                $"attendance-{module.ModuleCode}-{filter.From:yyyyMMdd}-{filter.To:yyyyMMdd}.csv";
+
+            // Lets the page show "export complete" (figure 3.2.3h).
+            Response.Cookies.Append("ams-export", "done", new CookieOptions
+            {
+                MaxAge = TimeSpan.FromMinutes(1),
+                SameSite = SameSiteMode.Strict
+            });
+
+            return File(ReportService.ToCsv(report), "text/csv", fileName);
+        }
+        catch (Exception ex)
+        {
+            // Figure 3.2.3f - CSV export failure.
+            _logger.LogError(ex, "CSV export failed.");
+            TempData["ReportError"] = "The report could not be exported to CSV. Please try again.";
+            return RedirectToAction(nameof(Index), new { filter.ModuleId, filter.From, filter.To, filter.Student });
+        }
+    }
+
+    private async Task<AttendanceReportPageViewModel> BuildModelAsync(ReportFilter filter, AccessScope scope)
+    {
+        return new AttendanceReportPageViewModel
+        {
+            Filter = filter,
+            Modules = await _reportService.GetPermittedModulesAsync(scope),
+            Students = await _reportService.GetPermittedStudentsAsync(scope, filter.ModuleId),
+            ErrorMessage = TempData["ReportError"] as string,
+            InfoMessage = TempData["ReportInfo"] as string
+        };
+    }
+}
+
+public class AttendanceReportPageViewModel
+{
+    public ReportFilter Filter { get; set; } = new();
+    public List<Module> Modules { get; set; } = new();
+    public List<Student> Students { get; set; } = new();
+    public AttendanceReportResult? Report { get; set; }
+    public string? ErrorMessage { get; set; }
+    public string? InfoMessage { get; set; }
+    public string? SuccessMessage { get; set; }
 }

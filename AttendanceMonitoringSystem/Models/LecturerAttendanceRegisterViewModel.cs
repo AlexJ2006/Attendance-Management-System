@@ -6,6 +6,8 @@ public class LecturerAttendanceRegisterViewModel
 {
     public int SessionId { get; set; }
 
+    public int ModuleOccurrenceId { get; set; }
+
     public string ModuleCode { get; set; } = string.Empty;
 
     public string ModuleName { get; set; } = string.Empty;

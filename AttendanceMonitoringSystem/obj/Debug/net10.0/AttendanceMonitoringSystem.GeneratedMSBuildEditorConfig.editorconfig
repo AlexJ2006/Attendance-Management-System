@@ -87,6 +87,10 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvX1ZpZXdTdGFydC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/AdminUsers/Form.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW5Vc2Vycy9Gb3JtLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/AdminUsers/Index.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQWRtaW5Vc2Vycy9JbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
@@ -99,12 +103,8 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXR0ZW5kYW5jZS9pbmRleC5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Attendance/Register.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXR0ZW5kYW5jZS9SZWdpc3Rlci5jc2h0bWw=
-build_metadata.AdditionalFiles.CssScope = 
-
-[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/AttendanceReports/index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXR0ZW5kYW5jZVJlcG9ydHMvaW5kZXguY3NodG1s
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/AttendanceReports/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvQXR0ZW5kYW5jZVJlcG9ydHMvSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/CourseLeader/Course.cshtml]
@@ -163,24 +163,40 @@ build_metadata.AdditionalFiles.CssScope =
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2Vzc2lvbnMvUmVnaXN0ZXIuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Shared/AccessDenied.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0FjY2Vzc0RlbmllZC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Shared/Error.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL0Vycm9yLmNzaHRtbA==
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Shared/StatusCode.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL1N0YXR1c0NvZGUuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Shared/_Layout.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Shared/_StatusBadge.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19TdGF0dXNCYWRnZS5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Shared/_ValidationScriptsPartial.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19WYWxpZGF0aW9uU2NyaXB0c1BhcnRpYWwuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Students/AssignesToMe.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3R1ZGVudHMvQXNzaWduZXNUb01lLmNzaHRtbA==
-build_metadata.AdditionalFiles.CssScope = 
-
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Students/EnrolmentDetails.cshtml]
 build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3R1ZGVudHMvRW5yb2xtZW50RGV0YWlscy5jc2h0bWw=
 build_metadata.AdditionalFiles.CssScope = 
 
-[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Students/index.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3R1ZGVudHMvaW5kZXguY3NodG1s
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Students/List.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU3R1ZGVudHMvTGlzdC5jc2h0bWw=
+build_metadata.AdditionalFiles.CssScope = 
+
+[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Tutor/Index.cshtml]
+build_metadata.AdditionalFiles.TargetPath = Vmlld3MvVHV0b3IvSW5kZXguY3NodG1s
 build_metadata.AdditionalFiles.CssScope = 
 
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/TutorAssignments/Index.cshtml]
@@ -198,7 +214,3 @@ build_metadata.AdditionalFiles.CssScope =
 [/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Pages/Shared/_Layout.cshtml]
 build_metadata.AdditionalFiles.TargetPath = UGFnZXMvU2hhcmVkL19MYXlvdXQuY3NodG1s
 build_metadata.AdditionalFiles.CssScope = b-7pu0vwscgr
-
-[/Users/alexjakeman/Desktop/Attendance-Management-System/AttendanceMonitoringSystem/Views/Shared/_Layout.cshtml]
-build_metadata.AdditionalFiles.TargetPath = Vmlld3MvU2hhcmVkL19MYXlvdXQuY3NodG1s
-build_metadata.AdditionalFiles.CssScope = b-k0xmk3iyzp

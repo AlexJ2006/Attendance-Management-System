@@ -18,6 +18,7 @@ public class ApplicationDbContext : DbContext
     public DbSet<ModuleOccurrence> ModuleOccurrences
         => Set<ModuleOccurrence>();
     public DbSet<Student> Students => Set<Student>();
+    public DbSet<Cohort> Cohorts => Set<Cohort>();
     public DbSet<Session> Sessions => Set<Session>();
     public DbSet<Attendance> Attendances => Set<Attendance>();
     public DbSet<AttendanceHistory> AttendanceHistories
@@ -50,6 +51,13 @@ public class ApplicationDbContext : DbContext
             entity.Property(u => u.IsActive).HasColumnName("is_active");
             entity.Property(u => u.PasswordHash)
             .HasColumnName("PasswordHash");
+            entity.Property(u => u.FailedLoginAttempts)
+                .HasColumnName("FailedLoginAttempts");
+            entity.Property(u => u.LockoutEndUtc)
+                .HasColumnName("LockoutEndUtc");
+
+            // Email addresses identify accounts, so they must be unique.
+            entity.HasIndex(u => u.Email).IsUnique();
         });
 
         modelBuilder.Entity<Role>(entity =>
@@ -126,6 +134,12 @@ public class ApplicationDbContext : DbContext
                 .OnDelete(DeleteBehavior.Restrict);
         });
 
+        modelBuilder.Entity<Cohort>(entity =>
+        {
+            entity.ToTable("Cohort");
+            entity.HasKey(c => c.CohortId);
+        });
+
         modelBuilder.Entity<Student>(entity =>
         {
             entity.ToTable("Student");
@@ -139,9 +153,15 @@ public class ApplicationDbContext : DbContext
             entity.Property(s => s.YearOfStudy).HasColumnName("YearOfStudy");
             entity.Property(s => s.Department).HasColumnName("Department");
 
-            // Present in the database; add the matching property/model
-            // before querying or saving this relationship.
-            entity.Property<int>("CohortId").HasColumnName("CohortId");
+            entity.Property(s => s.UserId).HasColumnName("UserId");
+            entity.Property(s => s.CohortId).HasColumnName("CohortId");
+
+            entity.HasOne(s => s.User)
+                .WithMany()
+                .HasForeignKey(s => s.UserId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            entity.HasIndex(s => s.UserId);
 
             entity.HasOne(s => s.Course)
                 .WithMany()
@@ -236,8 +256,9 @@ public class ApplicationDbContext : DbContext
             entity.Property(h => h.Reason).HasColumnName("Reason");
             entity.Property(h => h.ChangedByUserId).HasColumnName("CorrectedBy");
 
-            // The existing database does not show a PreviousStatus column.
-            entity.Ignore(h => h.PreviousStatus);
+            // Stores the status before the correction (test T16).
+            entity.Property(h => h.PreviousStatus)
+                .HasColumnName("PreviousStatus");
 
             entity.HasOne(h => h.Attendance)
                 .WithMany()

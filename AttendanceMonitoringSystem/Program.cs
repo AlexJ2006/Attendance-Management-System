@@ -1,52 +1,67 @@
-
 using AttendanceMonitoringSystem.Data;
 using AttendanceMonitoringSystem.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Register Entity Framework Core with the existing SQLite database.
+var connectionString =
+    builder.Configuration.GetConnectionString("DefaultConnection")
+    ?? "Data Source=attendance.db";
+
+// Register Entity Framework Core with the existing SQLite database (ADR03).
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseSqlite(
-        builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? "Data Source=attendance.db"));
+    options.UseSqlite(connectionString));
 
-// Register MVC controllers and views.
+// Register MVC controllers, views and Razor Pages.
 builder.Services.AddControllersWithViews();
+builder.Services.AddRazorPages();
 
-// Register the services used by the application.
+// Application-layer services.
 builder.Services.AddScoped<StudentService>();
 builder.Services.AddScoped<ModuleService>();
 builder.Services.AddScoped<AttendanceService>();
-
-// Register the Course Leader dashboard and monitoring service.
 builder.Services.AddScoped<CourseLeaderService>();
-
-// Register the Module Leader dashboard and monitoring service.
 builder.Services.AddScoped<ModuleLeaderService>();
+builder.Services.AddScoped<AccessScopeService>();
+builder.Services.AddScoped<ReportService>();
 
-// Register memory caching.
+// Memory cache backs password reset codes and attendance-code attempt limits.
 builder.Services.AddMemoryCache();
-
-// Register the password reset service.
 builder.Services.AddSingleton<PasswordResetService>();
+builder.Services.AddSingleton<CodeAttemptLimiter>();
 
-// Automatically update teaching session statuses.
+// Automatically update teaching session statuses (ADR07).
 builder.Services.AddHostedService<SessionStatusBackgroundService>();
 
-// Register Razor Pages.
-builder.Services.AddRazorPages();
+// Health check used to measure availability (NFR01).
+builder.Services.AddHealthChecks()
+    .AddCheck<DatabaseHealthCheck>("database");
 
-// Configure cookie authentication.
-builder.Services.AddAuthentication("MyCookieAuth")
-    .AddCookie("MyCookieAuth", options =>
+// Cookie authentication. Passwords are hashed with the ASP.NET Core Identity
+// PasswordHasher (ADR04) and roles are added to the cookie as claims.
+builder.Services.AddAuthentication(AuthConstants.Scheme)
+    .AddCookie(AuthConstants.Scheme, options =>
     {
         options.LoginPath = "/Index";
-        options.AccessDeniedPath = "/Index";
+        options.AccessDeniedPath = "/Home/AccessDenied";
+        options.Cookie.Name = "AMS.Auth";
+        options.Cookie.HttpOnly = true;
+        options.Cookie.SameSite = SameSiteMode.Strict;
+        options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
     });
 
-// Register authorization.
-builder.Services.AddAuthorization();
+// Every page requires a signed-in user unless it is explicitly marked
+// [AllowAnonymous] (sign-in, password reset, privacy and error pages).
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
 // Keep the existing optional password setup process.
 if (Environment.GetEnvironmentVariable("RUN_PASSWORD_SETUP") == "1")
@@ -61,10 +76,6 @@ if (Environment.GetEnvironmentVariable("RUN_PASSWORD_SETUP") == "1")
             "Set INITIAL_USER_EMAIL and INITIAL_PASSWORD first.");
     }
 
-    var connectionString =
-        builder.Configuration.GetConnectionString("DefaultConnection")
-        ?? "Data Source=attendance.db";
-
     await PasswordSetup.ResetPasswordAsync(
         connectionString, email, password);
 
@@ -73,14 +84,46 @@ if (Environment.GetEnvironmentVariable("RUN_PASSWORD_SETUP") == "1")
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
-if (!app.Environment.IsDevelopment())
+// Bring the database schema and roles up to date before serving requests.
+using (var scope = app.Services.CreateScope())
 {
-    app.UseExceptionHandler("/Home/Error");
-    app.UseHsts();
+    var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    await DatabaseInitialiser.InitialiseAsync(context, logger);
 }
 
-app.UseHttpsRedirection();
+// Show a friendly error page rather than a stack trace when something fails,
+// e.g. the database is unavailable (NFR01). Set ShowDetailedErrors to true
+// in appsettings.Development.json to see the developer exception page.
+if (app.Environment.IsDevelopment() &&
+    app.Configuration.GetValue<bool>("ShowDetailedErrors"))
+{
+    app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Home/Error");
+
+    if (!app.Environment.IsDevelopment())
+    {
+        app.UseHsts();
+        app.UseHttpsRedirection();
+    }
+}
+
+// Friendly pages for 403, 404 and similar responses.
+app.UseStatusCodePagesWithReExecute("/Home/Status/{0}");
+
+// Basic security headers.
+app.Use(async (context, next) =>
+{
+    var headers = context.Response.Headers;
+    headers["X-Content-Type-Options"] = "nosniff";
+    headers["X-Frame-Options"] = "DENY";
+    headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
+    await next();
+});
+
 app.UseStaticFiles();
 app.UseRouting();
 
@@ -88,13 +131,15 @@ app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();
 
-// Configure MVC routing.
+app.MapHealthChecks("/health").AllowAnonymous();
+
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
-// Map Razor Pages.
 app.MapRazorPages();
 
-// Start the application.
 app.Run();
+
+// Allows the test project and tools to reference the application.
+public partial class Program { }

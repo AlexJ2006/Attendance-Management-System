@@ -12,7 +12,7 @@ using System.Security.Cryptography;
 namespace AttendanceMonitoringSystem.Controllers;
 
 // Only users with the existing Lecturer role can access Tutor session functions.
-[Authorize(Roles = "Lecturer")]
+[Authorize(Roles = RoleNames.Tutor)]
 public class SessionsController : Controller
 {
     private readonly ApplicationDbContext _context;
@@ -229,6 +229,7 @@ public class SessionsController : Controller
         var model = new LecturerAttendanceRegisterViewModel
         {
             SessionId = session.SessionId,
+            ModuleOccurrenceId = session.ModuleOccurrenceId,
             ModuleCode = module.ModuleCode,
             ModuleName = module.ModuleName,
             SessionType = session.SessionType,
@@ -462,8 +463,16 @@ public class SessionsController : Controller
             return View();
         }
 
-        var code = RandomNumberGenerator.GetInt32(0, 1_000_000)
-            .ToString("D6");
+        // Generate a code that no other live session is currently using.
+        string code;
+        do
+        {
+            code = RandomNumberGenerator.GetInt32(0, 1_000_000).ToString("D6");
+        }
+        while (await _context.Sessions.AnyAsync(s =>
+            s.SessionId != session.SessionId &&
+            s.SessionCode == code &&
+            s.CodeExpiresAt > DateTime.Now));
 
         var expiry = DateTime.Now.AddMinutes(10);
 

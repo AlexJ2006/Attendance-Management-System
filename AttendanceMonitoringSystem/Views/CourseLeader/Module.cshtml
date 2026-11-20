@@ -28,7 +28,7 @@
         <div class="col-md-4">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">Students</h6>
+                    <p class="text-muted mb-1">Students</p>
                     <h3>@Model.Students.Count</h3>
                 </div>
             </div>
@@ -37,7 +37,7 @@
         <div class="col-md-4">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">Overall Attendance</h6>
+                    <p class="text-muted mb-1">Overall Attendance</p>
                     <h3>@Model.AttendancePercentage%</h3>
                 </div>
             </div>
@@ -46,7 +46,7 @@
         <div class="col-md-4">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">Below 80%</h6>
+                    <p class="text-muted mb-1">Below 80%</p>
                     <h3>
                         @Model.Students.Count(s =>
                             s.TotalRecords > 0 &&
@@ -62,7 +62,7 @@
     <div class="card shadow-sm mb-4">
 
         <div class="card-header">
-            <h5 class="mb-0">Student Attendance</h5>
+            <h2 class="h5 mb-0">Student Attendance</h2>
         </div>
 
         <div class="card-body">

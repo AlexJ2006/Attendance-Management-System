@@ -1,4 +1,3 @@
-```cshtml
 @model AttendanceMonitoringSystem.Models.ModuleLeaderDashboardViewModel
 
 @{
@@ -21,7 +20,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">Assigned Modules</h6>
+                    <p class="text-muted mb-1">Assigned Modules</p>
                     <h2>@Model.Modules.Count</h2>
                 </div>
             </div>
@@ -30,7 +29,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">Low Attendance</h6>
+                    <p class="text-muted mb-1">Low Attendance</p>
                     <h2 class="text-danger">
                         @Model.LowAttendanceStudents.Count
                     </h2>
@@ -44,7 +43,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">Disengagement Flags</h6>
+                    <p class="text-muted mb-1">Disengagement Flags</p>
                     <h2 class="text-warning">
                         @Model.DisengagedStudents.Count
                     </h2>
@@ -58,7 +57,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">Compliance Threshold</h6>
+                    <p class="text-muted mb-1">Compliance Threshold</p>
                     <h2>@Model.AttendanceWarningThreshold%</h2>
                     <small class="text-muted">
                         Minimum required attendance
@@ -72,7 +71,7 @@
     <!-- Assigned modules -->
     <div class="card shadow-sm mb-4">
         <div class="card-header">
-            <h5 class="mb-0">My Assigned Modules</h5>
+            <h2 class="h5 mb-0">My Assigned Modules</h2>
         </div>
 
         <div class="card-body">
@@ -136,7 +135,7 @@
     <!-- Low attendance students -->
     <div class="card shadow-sm mb-4">
         <div class="card-header">
-            <h5 class="mb-0">Students Below Attendance Threshold</h5>
+            <h2 class="h5 mb-0">Students Below Attendance Threshold</h2>
         </div>
 
         <div class="card-body">
@@ -198,7 +197,7 @@
     <!-- Disengaged students -->
     <div class="card shadow-sm mb-4">
         <div class="card-header">
-            <h5 class="mb-0">Student Disengagement Alerts</h5>
+            <h2 class="h5 mb-0">Student Disengagement Alerts</h2>
         </div>
 
         <div class="card-body">
@@ -254,4 +253,3 @@
     </div>
 
 </div>
-```

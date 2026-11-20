@@ -1,0 +1,114 @@
+@using AttendanceMonitoringSystem.Controllers
+@using AttendanceMonitoringSystem.Models
+@model TutorDashboardViewModel
+@{
+    ViewData["Title"] = "Attendance Dashboard";
+}
+
+<div class="d-flex justify-content-between align-items-center flex-wrap gap-2 mb-3">
+    <h1 class="mb-0">Student Attendance</h1>
+    <div class="d-flex gap-2">
+        <a asp-controller="Sessions" asp-action="GenerateCode" class="btn btn-primary">Generate attendance code</a>
+        <a asp-controller="Sessions" asp-action="Create" class="btn btn-outline-primary">Create session</a>
+    </div>
+</div>
+
+@if (Model.ErrorMessage != null)
+{
+    <div class="alert alert-danger" role="alert">@Model.ErrorMessage</div>
+}
+@if (Model.InfoMessage != null)
+{
+    <div class="alert alert-warning" role="status">@Model.InfoMessage</div>
+}
+
+@if (Model.Occurrences.Count > 0)
+{
+    <div class="row g-4">
+        <div class="col-lg-3">
+            <form method="get" asp-action="Index" class="mb-3">
+                <label for="occurrenceId" class="form-label">Module</label>
+                <select id="occurrenceId" name="occurrenceId" class="form-select" onchange="this.form.submit()">
+                    @foreach (var o in Model.Occurrences)
+                    {
+                        <option value="@o.ModuleOccurrenceId" selected="@(Model.Selected?.ModuleOccurrenceId == o.ModuleOccurrenceId)">
+                            @o.Module.ModuleCode – @o.Module.ModuleName
+                        </option>
+                    }
+                </select>
+                <noscript><button type="submit" class="btn btn-secondary mt-2">Show</button></noscript>
+            </form>
+
+            @if (Model.Selected != null)
+            {
+                <div class="card stat-card text-center">
+                    <div class="card-body">
+                        <div class="text-muted small">@Model.Selected.Module.ModuleCode</div>
+                        <div class="stat-value">@Model.ModuleAttendanceRate.ToString("0.0")%</div>
+                        <div class="stat-label">Module attendance rate</div>
+                        <hr />
+                        <div class="small">@Model.EnrolledCount students enrolled</div>
+                        <div class="small text-muted">@Model.Selected.AcademicYear, @Model.Selected.Semester</div>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <div class="col-lg-9">
+            <section class="card shadow-sm" aria-labelledby="register-heading">
+                <div class="card-header"><h2 id="register-heading" class="h5 mb-0">Module Attendance Register</h2></div>
+                <div class="card-body p-0">
+                    @if (Model.Sessions.Count == 0)
+                    {
+                        <p class="p-3 mb-0 text-muted">No sessions yet.</p>
+                    }
+                    else
+                    {
+                        <div class="table-responsive">
+                            <table class="table table-hover mb-0 align-middle">
+                                <caption class="visually-hidden">Teaching sessions for the selected module</caption>
+                                <thead class="table-light">
+                                    <tr>
+                                        <th scope="col">Date</th>
+                                        <th scope="col">Type</th>
+                                        <th scope="col">Status</th>
+                                        <th scope="col">Attended</th>
+                                        <th scope="col">Rate</th>
+                                        <th scope="col"><span class="visually-hidden">Actions</span></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (var s in Model.Sessions)
+                                    {
+                                        <tr>
+                                            <td>@s.StartTime.ToString("ddd dd MMM yyyy, HH:mm")–@s.EndTime.ToString("HH:mm")</td>
+                                            <td>@s.SessionType</td>
+                                            <td>
+                                                @s.Status
+                                                @if (s.HasLiveCode)
+                                                {
+                                                    <span class="badge bg-primary ms-1">Code live</span>
+                                                }
+                                            </td>
+                                            <td>@s.AttendedCount / @s.EnrolledCount</td>
+                                            <td>@(s.Statuses.Count == 0 ? "–" : s.Percentage.ToString("0") + "%")</td>
+                                            <td class="text-end">
+                                                <a asp-controller="Sessions" asp-action="Register" asp-route-id="@s.SessionId"
+                                                   class="btn btn-sm btn-outline-primary"
+                                                   aria-label="Open register for @s.SessionType on @s.StartTime.ToString("dd MMM yyyy HH:mm")">Open register</a>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    }
+                </div>
+            </section>
+            <p class="small text-muted mt-2">
+                Open a register to record attendance manually or correct a status.
+                A reason is required for every correction and is kept in the audit history.
+            </p>
+        </div>
+    </div>
+}

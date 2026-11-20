@@ -17,22 +17,25 @@
             </p>
         </div>
 
-        <a asp-page="/AdminDashboard" class="btn btn-outline-secondary">
-            Back to Dashboard
-        </a>
+        <div class="d-flex gap-2">
+            <a asp-action="Create" class="btn btn-primary">Create user</a>
+            <a asp-page="/AdminDashboard" class="btn btn-outline-secondary">
+                Back to Dashboard
+            </a>
+        </div>
     </div>
 
     <!-- Display success and error messages. -->
     @if (TempData["Success"] != null)
     {
-        <div class="alert alert-success">
+        <div class="alert alert-success" role="status">
             @TempData["Success"]
         </div>
     }
 
     @if (TempData["Error"] != null)
     {
-        <div class="alert alert-danger">
+        <div class="alert alert-danger" role="alert">
             @TempData["Error"]
         </div>
     }
@@ -87,12 +90,12 @@
 
                     <thead class="table-dark">
                         <tr>
-                            <th>User ID</th>
-                            <th>Name</th>
-                            <th>Email</th>
-                            <th>Assigned Roles</th>
-                            <th>Account Status</th>
-                            <th>Actions</th>
+                            <th scope="col">User ID</th>
+                            <th scope="col">Name</th>
+                            <th scope="col">Email</th>
+                            <th scope="col">Assigned Roles</th>
+                            <th scope="col">Account Status</th>
+                            <th scope="col">Actions</th>
                         </tr>
                     </thead>
 
@@ -122,7 +125,7 @@
                                             @foreach (var role in user.RoleNames)
                                             {
                                                 <span class="badge bg-primary me-1">
-                                                    @role
+                                                    @RoleNames.Display(role)
                                                 </span>
                                             }
                                         }
@@ -139,13 +142,13 @@
                                         @if (user.IsActive)
                                         {
                                             <span class="badge bg-success">
-                                                Active
+                                                ✓ Active
                                             </span>
                                         }
                                         else
                                         {
                                             <span class="badge bg-danger">
-                                                Inactive
+                                                ✗ Inactive
                                             </span>
                                         }
                                     </td>
@@ -154,6 +157,12 @@
                                     <td>
                                         <div class="d-flex flex-wrap gap-2">
 
+                                            <a asp-action="Edit"
+                                               asp-route-id="@user.UserId"
+                                               class="btn btn-sm btn-outline-secondary"
+                                               aria-label="Edit @user.Name">
+                                                Edit
+                                            </a>
                                             <!-- Open the role management page. -->
                                             <a asp-controller="AdminUsers"
                                                asp-action="ManageRoles"

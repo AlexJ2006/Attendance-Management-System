@@ -49,7 +49,7 @@ namespace AttendanceMonitoringSystem.Controllers
                     u.UserId == moduleLeaderUserId &&
                     u.IsActive &&
                     u.UserRoles.Any(ur =>
-                        ur.Role.RoleName == "Lecturer"));
+                        ur.Role.RoleName == RoleNames.ModuleLeader));
 
             // Check that the selected module exists.
             var moduleExists = await _context.Modules
@@ -59,7 +59,7 @@ namespace AttendanceMonitoringSystem.Controllers
             if (!isModuleLeader || !moduleExists)
             {
                 TempData["Error"] =
-                    "Please select a valid active Lecturer and module.";
+                    "Please select a valid active Module Leader and module.";
 
                 return RedirectToAction(nameof(Index));
             }
@@ -73,7 +73,7 @@ namespace AttendanceMonitoringSystem.Controllers
             if (alreadyAssigned)
             {
                 TempData["Error"] =
-                    "This Lecturer is already assigned to that module.";
+                    "This Module Leader is already assigned to that module.";
 
                 return RedirectToAction(nameof(Index));
             }
@@ -129,7 +129,7 @@ namespace AttendanceMonitoringSystem.Controllers
                 .AsNoTracking()
                 .Where(u => u.IsActive &&
                     u.UserRoles.Any(ur =>
-                        ur.Role.RoleName == "Lecturer"))
+                        ur.Role.RoleName == RoleNames.ModuleLeader))
                 .OrderBy(u => u.Name)
                 .ToListAsync();
 

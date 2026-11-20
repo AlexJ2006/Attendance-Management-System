@@ -50,7 +50,7 @@ namespace AttendanceMonitoringSystem.Controllers
                     u.UserId == tutorUserId &&
                     u.IsActive &&
                     u.UserRoles.Any(ur =>
-                        ur.Role.RoleName == "Lecturer"));
+                        ur.Role.RoleName == RoleNames.Tutor));
 
             // Confirm that the selected module occurrence exists.
             var occurrenceExists = await _context.ModuleOccurrences
@@ -128,7 +128,7 @@ namespace AttendanceMonitoringSystem.Controllers
                 .AsNoTracking()
                 .Where(u => u.IsActive &&
                     u.UserRoles.Any(ur =>
-                        ur.Role.RoleName == "Lecturer"))
+                        ur.Role.RoleName == RoleNames.Tutor))
                 .OrderBy(u => u.Name)
                 .ToListAsync();
 

@@ -33,7 +33,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">Assigned Courses</h6>
+                    <p class="text-muted mb-1">Assigned Courses</p>
                     <h2>@Model.Courses.Count</h2>
                 </div>
             </div>
@@ -42,7 +42,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">Students Requiring Attention</h6>
+                    <p class="text-muted mb-1">Students Requiring Attention</p>
                     <h2>@Model.LowAttendanceStudents.Count</h2>
                 </div>
             </div>
@@ -51,7 +51,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm h-100">
                 <div class="card-body">
-                    <h6 class="text-muted">Attendance Warning Threshold</h6>
+                    <p class="text-muted mb-1">Attendance Warning Threshold</p>
                     <h2>@Model.AttendanceWarningThreshold%</h2>
                 </div>
             </div>
@@ -61,7 +61,7 @@
         <div class="col-md-3">
             <div class="card shadow-sm h-100 border-danger">
                 <div class="card-body">
-                    <h6 class="text-muted">Disengagement Flags</h6>
+                    <p class="text-muted mb-1">Disengagement Flags</p>
                     <h2 class="text-danger">@Model.DisengagedStudents.Count</h2>
                 </div>
             </div>

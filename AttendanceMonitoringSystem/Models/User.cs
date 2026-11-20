@@ -12,6 +12,12 @@ public class User
 
     public string? PasswordHash { get; set; }
 
+    // Number of consecutive failed sign-in attempts (reset on success).
+    public int FailedLoginAttempts { get; set; }
+
+    // When set and in the future, the account is temporarily locked.
+    public DateTime? LockoutEndUtc { get; set; }
+
     public ICollection<UserRole> UserRoles { get; set; }
         = new List<UserRole>();
 }
