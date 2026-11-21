@@ -26,16 +26,16 @@ passwords that were already set on them.
 
 | Role(s) | Name | Email | Scope |
 |---|---|---|---|
-| Administrator | IT Administrator | admin@example.com | Everything |
-| Course Leader | Prof Mark Ellis | mark.ellis@example.com | Computer Science course; also Module Leader of CS101-M02 and M03 |
-| Course Leader + Tutor | Dr Hannah Lowe | hannah.lowe@example.com | Business and Data Science courses; tutor for DS101 modules |
-| Tutor + Module Leader | Dr Priya Sharma | priya.sharma@example.com | Tutor and Module Leader for BM101-M01 and M02 |
-| Tutor + Module Leader | Dr Casey Brown | casey.brown@example.com | Tutor for CS101 modules; Module Leader of CS101-M01 |
-| Academic Adviser | Sarah Okafor | sarah.okafor@example.com | Advisees on Business and Data Science |
-| Student + Academic Adviser | Taylor Wilson | taylor.wilson@example.com | Advisees on Computer Science |
-| Student (Computer Science) | Jamie Taylor | jamie.taylor@example.com | Own records only |
+<!-- | Administrator | IT Administrator | admin@example.com | Everything | -->
+<!-- | Course Leader | Prof Mark Ellis | mark.ellis@example.com | Computer Science course; also Module Leader of CS101-M02 and M03 | -->
+<!-- | Course Leader + Tutor | Dr Hannah Lowe | hannah.lowe@example.com | Business and Data Science courses; tutor for DS101 modules | -->
+<!-- | Tutor + Module Leader | Dr Priya Sharma | priya.sharma@example.com | Tutor and Module Leader for BM101-M01 and M02 | -->
+<!-- | Tutor + Module Leader | Dr Casey Brown | casey.brown@example.com | Tutor for CS101 modules; Module Leader of CS101-M01 | -->
+<!-- | Academic Adviser | Sarah Okafor | sarah.okafor@example.com | Advisees on Business and Data Science | -->
+<!-- | Student + Academic Adviser | Taylor Wilson | taylor.wilson@example.com | Advisees on Computer Science | -->
+<!-- | Student (Computer Science) | Jamie Taylor | jamie.taylor@example.com | Own records only |
 | Student (Business) | Sam Patel | sam.patel@example.com | Own records only |
-| Student (deactivated) | Lucas Brooks | lucas.brooks25@example.com | Cannot sign in (T03) |
+| Student (deactivated) | Lucas Brooks | lucas.brooks25@example.com | Cannot sign in (T03) | -->
 
 The demo data (staff, assignments and historical sessions from 28 Sep to 16 Nov 2026) is in
 `Data/Seed/demo-data.sql`. It has already been applied to `attendance.db` and can safely be run
